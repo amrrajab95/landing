@@ -1,1 +1,691 @@
-console.log('Happy developing ✨')
+document.addEventListener('DOMContentLoaded', () => {
+    const BASE_SPLIT_WIDTH = 1905;
+    const BASE_SPLIT_HEIGHT = 910;
+    const transitionDistance = 950;  
+    const tailPaddingFactor = 0.07; 
+    const pairedTransitionDistance = 820;
+    const pairedHeadPaddingFactor = 0.25;
+    const pairedTailPaddingFactor = 0.3; 
+    const pairedInitialOffsetFactor = 0.12;
+    const pairedFadeDuration = 340;
+    const leftTransitionHolds = [0, 0];
+    const getCaptionBaseBottom = () => -Math.max((window?.innerHeight || 800) * 0.6, 320);
+    const getCaptionExtra = () => Math.max((window?.innerHeight || 0) * 1.25, 900);
+    const splitConfigs = [
+        [
+        { translateX: 100, scale: 1.2, top: 0, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
+        { translateX: 1620, scale: 2.8, top: -220, bottom: null, captionIndex: 0, duration: 800, ease: 'linear' },
+        { translateX: 120, scale: 2.18, top: 120, bottom: null, captionIndex: 1, duration: 800, ease: 'linear' },
+        { translateX: -1540, scale: 2.55, top: 150, bottom: null, captionIndex: 2, duration: 800, ease: 'linear' },
+        { translateX: -230, scale: 0.8, top: 60, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
+        ],
+        [
+            { translateX: -130, scale: 0.99, top: -20, bottom: null, captionIndex: -1, duration: 820, ease: 'linear' },
+            { translateX: 360, scale: 1.5, top: 0, bottom: null, captionIndex: 0, duration: 820, ease: 'linear' },
+            { translateX: 10, scale: 2.4, top: 20, bottom: null, captionIndex: 1, duration: 820, ease: 'linear' },
+            { translateX: -1050, scale: 1.89, top: 80, bottom: null, captionIndex: 2, duration: 820, ease: 'linear' },
+            { translateX: -3940, scale: 5, top: -260, bottom: null, captionIndex: 3, duration: 820, ease: 'linear' },
+            { translateX: -130, scale: 0.99, top: -20, bottom: null, captionIndex: -1, duration: 820, ease: 'linear' },
+        ],
+        [
+            { translateX: 280, scale: 1.4, top: -150, bottom: null, captionIndex: -1, duration: 780, ease: 'linear' },
+            { translateX: 915, scale: 1.8, top: 0, bottom: null, captionIndex: 0, duration: 780, ease: 'linear' },
+            { translateX: -865, scale: 2.4, top: -85, bottom: null, captionIndex: 1, duration: 780, ease: 'linear' },
+            { translateX: -200, scale: 0.95, top: -90, bottom: null, captionIndex: -1, duration: 780, ease: 'linear' },
+        ],
+    ];
+    const splitGalleries = Array.from(document.querySelectorAll('.split-gallery')).map((gallery, index) => {
+        const container = gallery.querySelector('.split-image-container');
+        const steps = Array.from(gallery.querySelectorAll('.split-step'));
+        const config = splitConfigs[index] || splitConfigs[splitConfigs.length - 1];
+        return {
+            gallery,
+            container,
+            steps,
+            config,
+            measurements: null,
+        };
+    }); 
+    const scrollGalleries = Array.from(document.querySelectorAll('.scroll-gallery')).map((gallery) => {
+        const images = Array.from(gallery.querySelectorAll('.image-display img'));
+        const spacer = gallery.querySelector('.scroll-spacer');
+        return {
+            gallery,
+            images,
+            spacer,
+        }; 
+    });
+    const pairedGalleries = Array.from(document.querySelectorAll('.paired-gallery')).map((section) => {
+        const display = section.querySelector('.paired-display');
+        const leftColumn = display?.querySelector('[data-stack="left"]') ?? null;
+        const rightColumn = display?.querySelector('[data-stack="right"]') ?? null;
+        const leftItems = leftColumn ? Array.from(leftColumn.querySelectorAll('img')) : [];
+        const rightItems = rightColumn ? Array.from(rightColumn.querySelectorAll('img')) : [];
+        const spacer = section.querySelector('.paired-scroll-spacer');
+
+        leftItems.forEach((img, index) => {
+            img.style.opacity = index === 0 ? '1' : '0';
+            img.style.zIndex = String(leftItems.length - index);
+            img.dataset.opacity = index === 0 ? '1' : '0';
+        });
+
+        rightItems.forEach((img, index) => {
+            img.style.opacity = index === 0 ? '1' : '0';
+            img.style.zIndex = String(rightItems.length - index);
+            img.dataset.opacity = index === 0 ? '1' : '0';
+        });
+
+        return {
+            section,
+            display,
+            leftColumn,
+            rightColumn,
+            leftItems,
+            rightItems,
+            spacer,
+            measurements: null,
+            headPadding: 0,
+            tailPadding: 0,
+            totalScroll: 0,
+            leftTotal: 0,
+            rightTotal: 0,
+        };
+    });
+    const sec7Gallery = document.querySelector('.scroll-gallery.sec-7') || null;
+
+
+    const hasSplitGalleries = splitGalleries.some(
+        (entry) => entry.container && entry.steps.length > 0
+    );
+    const hasScrollGalleries = scrollGalleries.some(
+        (entry) => entry.images.length > 0 && entry.spacer
+    );
+
+    if (
+        !hasScrollGalleries &&
+        !hasSplitGalleries &&
+        pairedGalleries.length === 0
+    ) {
+        return;
+    }
+
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    const computeRightColumnState = (count, scrollValue, distance) => {
+        const opacities = new Array(count).fill(0);
+
+        if (count <= 0) {
+            return { opacities, activeIndex: -1 };
+        }
+
+        if (count === 1 || scrollValue <= 0) {
+            opacities[0] = 1;
+            return { opacities, activeIndex: 0 };
+        }
+
+        const safeDistance = Math.max(distance, 1);
+        const progress = clamp(scrollValue / safeDistance, 0, 1);
+        const baseIndex = 0;
+        const nextIndex = Math.min(1, count - 1);
+
+        if (nextIndex === baseIndex) {
+            opacities[baseIndex] = 1;
+            return { opacities, activeIndex: baseIndex };
+        }
+
+        const nextOpacity = clamp(progress, 0, 1);
+
+        opacities[nextIndex] = nextOpacity;
+        opacities[baseIndex] = 1;
+
+        for (let i = 2; i < count; i += 1) {
+            opacities[i] = 0;
+        }
+
+        const activeIndex = nextOpacity >= 0.6 ? nextIndex : baseIndex;
+
+        return { opacities, activeIndex };
+    };
+
+    const computeColumnState = (count, scrollValue, distance, holdDelays = []) => {
+        const opacities = new Array(count).fill(0);
+        const releaseThreshold = 0.985;
+
+        if (count <= 0) {
+            return { opacities, activeIndex: -1 };
+        }
+
+        if (count === 1 || scrollValue <= 0) {
+            opacities[0] = 1;
+            return { opacities, activeIndex: 0 };
+        }
+
+        const safeDistance = Math.max(distance, 1);
+        const normalized = clamp(scrollValue / safeDistance, 0, count - 1 + 0.001);
+        const stageIndex = Math.floor(normalized);
+        const blend = normalized - stageIndex;
+        const currentIndex = Math.min(stageIndex, count - 1);
+        const nextIndex = Math.min(stageIndex + 1, count - 1);
+
+        let activeIndex = currentIndex;
+        let currentOpacity = 1;
+        let nextOpacity = 0;
+
+        if (currentIndex === nextIndex) {
+            opacities[currentIndex] = 1;
+            return { opacities, activeIndex: currentIndex };
+        }
+
+        const hold = clamp(holdDelays[currentIndex] ?? 0, 0, 0.95);
+        const adjustedBlend =
+            hold >= 0.95
+                ? 0
+                : clamp((blend - hold) / Math.max(1 - hold, 0.0001), 0, 1);
+
+        if (adjustedBlend >= releaseThreshold) {
+            currentOpacity = 1;
+            nextOpacity = 1;
+            activeIndex = nextIndex;
+        } else {
+            nextOpacity = clamp(adjustedBlend / releaseThreshold, 0, 1);
+            activeIndex = nextOpacity >= 0.5 ? nextIndex : currentIndex;
+        }
+
+        opacities[currentIndex] = currentOpacity;
+        opacities[nextIndex] = nextOpacity;
+
+        return { opacities, activeIndex };
+    };
+    const computeOpacity = (index, localScroll) => {
+        if (index === 0) {
+            return 1;
+        }
+
+        const fadeInStart = (index - 1) * transitionDistance;
+        const fadeInEnd = index * transitionDistance;
+
+        if (localScroll <= fadeInStart) {
+            return 0;
+        }
+
+        if (localScroll >= fadeInEnd) {
+            return 1;
+        }
+
+        const progress = (localScroll - fadeInStart) / transitionDistance;
+        return clamp(progress, 0, 1);
+    };
+
+    const syncScrollSpacers = () => {
+        scrollGalleries.forEach((entry, galleryIndex) => {
+            const { images, spacer } = entry;
+            if (!spacer || images.length === 0) {
+            return;
+        }
+
+        const transitions = Math.max(images.length - 1, 0);
+            const totalScroll = transitionDistance * transitions;
+        const tailBase = Math.max(
+            (window.innerHeight || 0) * 0.5,
+            transitionDistance * tailPaddingFactor
+        );
+        const isLastGallery = galleryIndex === scrollGalleries.length - 1;
+        const lastGalleryPadding = Math.max(window.innerHeight || 0, tailBase);
+        const tailPadding = isLastGallery ? lastGalleryPadding : tailBase;
+            spacer.style.height = `${totalScroll + tailPadding}px`;
+        });
+    };
+
+    const syncPairedSpacers = () => {
+        pairedGalleries.forEach((gallery) => {
+            const { spacer, leftItems, rightItems } = gallery;
+            if (!spacer) {
+                return;
+            }
+
+            const leftTransitions = Math.max(leftItems.length - 1, 0);
+            const rightTransitions = Math.max(rightItems.length - 1, 0);
+            const transitions = leftTransitions + rightTransitions;
+            const headPadding = Math.max(
+                (window.innerHeight || 0) * pairedHeadPaddingFactor,
+                160
+            );
+            const tailPadding = Math.max(
+                (window.innerHeight || 0) * pairedTailPaddingFactor,
+                260
+            );
+            const totalScroll = pairedTransitionDistance * transitions;
+            const spacerHeight = headPadding + totalScroll + tailPadding;
+
+            spacer.style.height = `${spacerHeight}px`;
+            gallery.headPadding = headPadding;
+            gallery.tailPadding = tailPadding;
+            gallery.totalScroll = totalScroll;
+            gallery.leftTotal = pairedTransitionDistance * leftTransitions;
+            gallery.rightTotal = pairedTransitionDistance * rightTransitions;
+
+            leftItems.forEach((img, index) => {
+                img.style.zIndex = String(index + 1);
+            });
+
+            rightItems.forEach((img, index) => {
+                const base = rightItems.length + index + 1;
+                img.style.zIndex = String(base);
+            });
+        });
+    };
+
+    const updateSplitMeasurements = () => {
+        splitGalleries.forEach((entry) => {
+            const { gallery, container, steps } = entry;
+            if (!gallery || !container || steps.length === 0) {
+                entry.measurements = null;
+            return;
+        }
+
+        const offsets = [];
+        let accumulator = 0;
+
+            steps.forEach((step) => {
+            const height = step.offsetHeight;
+            offsets.push({
+                start: accumulator,
+                end: accumulator + height,
+                duration: height,
+            });
+            accumulator += height;
+        });
+
+            entry.measurements = {
+                start: gallery.offsetTop,
+            total: accumulator,
+            offsets,
+        };
+        });
+    };
+
+    const updatePairedMeasurements = () => {
+        pairedGalleries.forEach((gallery) => {
+            const sectionTop = gallery.section?.offsetTop ?? 0;
+            const sectionHeight = gallery.section?.offsetHeight ?? 0;
+            const displayHeight =
+                gallery.display?.offsetHeight ?? window.innerHeight ?? 0;
+
+            gallery.measurements = { 
+                start: sectionTop,
+                height: sectionHeight,
+                displayHeight,
+            };
+        });
+    };
+
+    const applySplitTransform = (scrollY) => {
+        splitGalleries.forEach((entry, index) => {
+            const { container, measurements, config } = entry;
+            if (!container || !measurements) {
+            return;
+        }
+
+            const { start, total, offsets } = measurements;
+        if (total === 0) {
+            return;
+        }
+
+        const captionExtra = getCaptionExtra();
+        const captionBaseBottom = getCaptionBaseBottom();
+            const captionSegments = config.filter((cfg) => (cfg.captionIndex ?? -1) >= 0).length;
+        const totalWithExtra = total + captionExtra * captionSegments;
+        const relative = clamp(scrollY - start, 0, totalWithExtra);
+
+        let segmentIndex = 0;
+
+        for (let i = 0; i < offsets.length; i += 1) {
+            const segment = offsets[i];
+            const extraForSegment =
+                    (config[i]?.captionIndex ?? -1) >= 0 ? captionExtra : 0;
+            const extendedEnd = segment.end + extraForSegment;
+
+            if (relative >= extendedEnd) {
+                segmentIndex = Math.min(i + 1, offsets.length - 1);
+                continue;
+            }
+ 
+            segmentIndex = i;
+            break;
+        }
+
+            const current = config[segmentIndex] || config[config.length - 1];
+        const segment = offsets[Math.min(segmentIndex, offsets.length - 1)];
+        let segmentProgress = 0;
+        const extraForSegment =
+                (config[segmentIndex]?.captionIndex ?? -1) >= 0 ? captionExtra : 0;
+            const containerWidth =
+                container.clientWidth || container.getBoundingClientRect().width || BASE_SPLIT_WIDTH;
+            const containerHeight =
+                container.clientHeight || container.getBoundingClientRect().height || BASE_SPLIT_HEIGHT;
+            const widthScale = containerWidth / BASE_SPLIT_WIDTH;
+            const heightScale = containerHeight / BASE_SPLIT_HEIGHT;
+
+        if (segment && segment.duration) {
+            const extendedDuration = segment.duration + extraForSegment;
+            const relativeWithinSegment = clamp(
+                relative - segment.start,
+                0,
+                extendedDuration
+            );
+            segmentProgress = extendedDuration > 0 ? relativeWithinSegment / extendedDuration : 0;
+        } else {
+            segmentProgress = 1;
+        }
+
+        let scale = current.scale ?? 1;
+        let translateX = current.translateX ?? 0;
+        let topOffset = current.top ?? 0;
+            let bottomOffset = current.bottom;
+            if (typeof translateX === 'number') {
+                translateX *= widthScale;
+            }
+            if (typeof topOffset === 'number') {
+                topOffset *= heightScale;
+            }
+            if (typeof bottomOffset === 'number') {
+                bottomOffset *= heightScale;
+            }
+        const durationMs = current.duration ?? 240; 
+        const ease = current.ease ?? 'ease-out';
+
+            const image = container.querySelector('.split-pan-image');
+        if (image) {
+            if (!image.dataset.activeSrc) {
+                image.dataset.activeSrc = image.getAttribute('src') || '';
+            }
+
+            const targetSrc = current.src;
+            if (typeof targetSrc === 'string' && targetSrc.length > 0 && image.dataset.activeSrc !== targetSrc) {
+                image.setAttribute('src', targetSrc);
+                image.dataset.activeSrc = targetSrc;
+            }
+
+            const transitionValue = `transform ${durationMs}ms ${ease}, top ${durationMs}ms ${ease}`;
+            if (image.dataset.transitionValue !== transitionValue) {
+                image.style.transition = transitionValue;
+                image.dataset.transitionValue = transitionValue;
+            }
+
+            image.style.transformOrigin = '50% 50%';
+            image.style.transform = `translateX(${translateX}px) scale(${scale})`;
+
+            if (topOffset === null || topOffset === undefined) {
+                image.style.top = '';
+            } else if (typeof topOffset === 'string') {
+                image.style.top = topOffset;
+            } else {
+                image.style.top = `${topOffset}px`;
+            }
+
+            if (bottomOffset === null || bottomOffset === undefined) {
+                image.style.bottom = '';
+            } else if (typeof bottomOffset === 'string') {
+                image.style.bottom = bottomOffset;
+            } else {
+                image.style.bottom = `${bottomOffset}px`;
+            }
+
+                const captionNodes = container.querySelectorAll('.split-caption');
+            const captionIndex = current.captionIndex ?? -1;
+
+            captionNodes.forEach((captionNode) => {
+                const isTarget =
+                    Number(captionNode.dataset.caption) === captionIndex && captionIndex >= 0;
+                captionNode.classList.toggle('is-active', isTarget);
+
+                if (isTarget) {
+                    const captionHeight = captionNode.offsetHeight || 0;
+                    const viewportHeight = window.innerHeight || 0;
+                    const travelDistance = Math.max(
+                        viewportHeight - captionHeight - captionBaseBottom,
+                        0
+                    );
+
+                    const startDelay = 0.0;
+                    const holdAtTop = 0.12;
+                    let activeProgress = 0;
+
+                    if (segmentProgress <= startDelay) {
+                        activeProgress = 0;
+                    } else if (segmentProgress >= 1 - holdAtTop) {
+                        activeProgress = 1;
+                    } else {
+                        activeProgress =
+                            (segmentProgress - startDelay) / Math.max(1 - holdAtTop - startDelay, 0.0001);
+                    }
+
+                    const bottomValue = captionBaseBottom + travelDistance * activeProgress;
+ 
+                    let opacity = 1; 
+                    const fadeWindow = 0.06;
+                    if (segmentProgress < fadeWindow) {
+                        opacity = clamp(segmentProgress / fadeWindow, 0, 1);
+                    } else if (segmentProgress > 1 - fadeWindow) {
+                        const fadeProgress = (1 - segmentProgress) / fadeWindow;
+                        const easedFade = Math.pow(Math.max(Math.min(fadeProgress, 1), 0), 1.6);
+                        opacity = clamp(easedFade, 0, 1);
+                    }
+
+                    captionNode.style.bottom = `${bottomValue}px`;
+                    captionNode.style.opacity = `${opacity}`;
+                } else {
+                    captionNode.style.bottom = `${captionBaseBottom}px`;
+                    captionNode.style.opacity = '0';
+                }
+            });
+        }
+        });
+    };
+
+    syncScrollSpacers();
+    syncPairedSpacers();
+    updateSplitMeasurements();
+    updatePairedMeasurements();
+
+    let ticking = false;
+
+    const render = () => {
+        const scrollY = window.scrollY;
+        const viewportHeight = window.innerHeight || 0;
+        const scrollHeight = Math.max(
+            document.documentElement?.scrollHeight || 0,
+            document.body?.scrollHeight || 0
+        );
+        const reachedPageBottom = viewportHeight + scrollY >= scrollHeight - 1;
+
+        scrollGalleries.forEach((entry, galleryIndex) => {
+            const { gallery, images } = entry;
+            if (images.length === 0 || !gallery) {
+                return;
+            }
+
+            const galleryTop = gallery.offsetTop;
+            const localScroll = Math.max(0, scrollY - galleryTop);
+            const transitions = Math.max(images.length - 1, 0);
+            const totalScroll = transitionDistance * transitions;
+            const lastImageIndex = images.length - 1;
+            const isLastGallery = galleryIndex === scrollGalleries.length - 1;
+            const isSectionSeven = gallery.classList.contains('sec-7');
+            const messageNode = isSectionSeven
+                ? gallery.querySelector('.section-message')
+                : null;
+            const hasMessageTarget =
+                isSectionSeven && lastImageIndex >= 0 && messageNode;
+
+        images.forEach((img, index) => {
+                let opacity = computeOpacity(index, localScroll);
+
+                if (transitions > 0 && index === lastImageIndex) {
+                    const finalThreshold = Math.max(totalScroll - 1, totalScroll * 0.98);
+                    if (localScroll >= finalThreshold || (isLastGallery && reachedPageBottom)) {
+                        opacity = 1;
+                    }
+                }
+
+                img.style.opacity = opacity.toFixed(3);
+
+                if (hasMessageTarget && index === lastImageIndex) {
+                    const reachedFullOpacity = opacity >= 0.999;
+                    const fadeInStart = totalScroll;
+                    const fadeInDuration = Math.max(
+                        transitionDistance * 0.6,
+                        1
+                    );
+                    const rawProgress = reachedFullOpacity
+                        ? (localScroll - fadeInStart) / fadeInDuration
+                        : -1;
+                    const clampedProgress = clamp(rawProgress, 0, 1);
+                    const isVisible =
+                        reachedFullOpacity && clampedProgress > 0.02;
+
+                    messageNode.style.opacity = isVisible
+                        ? clampedProgress.toFixed(3)
+                        : '0';
+                    messageNode.style.visibility = isVisible
+                        ? 'visible'
+                        : 'hidden';
+
+                    if (isVisible) {
+                        gallery.classList.add('is-message-active');
+                    } else {
+                        gallery.classList.remove('is-message-active');
+                    }
+                }
+            });
+        });
+
+        if (sec7Gallery) {
+            const galleryTop = sec7Gallery.offsetTop;
+            const galleryHeight = sec7Gallery.offsetHeight;
+            const galleryBottom = galleryTop + galleryHeight;
+            const inSection =
+                scrollY + viewportHeight > galleryTop && scrollY < galleryBottom;
+
+            sec7Gallery.classList.toggle('is-active', inSection);
+        }
+
+        applySplitTransform(scrollY);
+
+        pairedGalleries.forEach((gallery) => {
+            const {
+                leftItems,
+                rightItems,
+                measurements,
+                headPadding = 0,
+                totalScroll = 0,
+                leftTotal = 0,
+                rightTotal = 0,
+            } = gallery;
+
+            const hasLeft = Array.isArray(leftItems) && leftItems.length > 0;
+            const hasRight = Array.isArray(rightItems) && rightItems.length > 0;
+
+            if ((!hasLeft && !hasRight) || !measurements) {
+                return;
+            }
+
+            const { start, displayHeight = window.innerHeight || 0, height = 0 } = measurements;
+            const relativeToSection = clamp(scrollY - start, 0, height);
+            const triggerOffset = Math.max(displayHeight * pairedInitialOffsetFactor, 120);
+            const rawProgress = Math.max(0, relativeToSection - triggerOffset);
+            const sequenceScroll = clamp(
+                Math.max(0, rawProgress - headPadding),
+                0,
+                totalScroll
+            );
+
+            const effectiveLeftTotal = Math.max(leftTotal, 0);
+            const effectiveRightTotal = Math.max(rightTotal, 0);
+            const leftScroll = Math.min(sequenceScroll, effectiveLeftTotal);
+            const rightScroll =
+                sequenceScroll > effectiveLeftTotal
+                    ? Math.min(sequenceScroll - effectiveLeftTotal, effectiveRightTotal)
+                    : 0;
+
+            if (hasLeft) {
+                const leftState = computeColumnState(
+                    leftItems.length,
+                    leftScroll,
+                    pairedTransitionDistance,
+                    leftTransitionHolds
+                );
+
+                leftItems.forEach((img, index) => {
+                    const opacity = leftState.opacities[index] ?? 0;
+                    const target = Number(opacity.toFixed(3));
+
+                    if (!img.dataset.opacity) {
+                        img.dataset.opacity = index === 0 ? '1' : '0';
+                    }
+                    const previous = Number(img.dataset.opacity);
+
+                    if (target > previous) {
+                        img.style.transition = `opacity ${pairedFadeDuration}ms ease-in-out`;
+                    } else if (target < previous) {
+                        img.style.transition = 'none';
+                    }
+
+                    img.style.opacity = target.toFixed(3);
+                    img.classList.toggle('is-active', index === leftState.activeIndex);
+                    img.style.visibility = target > 0.005 ? 'visible' : 'hidden';
+                    img.dataset.opacity = target.toString();
+                });
+            }
+
+            if (hasRight) { 
+                const rightState = computeRightColumnState(
+                    rightItems.length,
+                    rightScroll,
+                    pairedTransitionDistance
+                );
+
+                rightItems.forEach((img, index) => {
+                    const opacity = rightState.opacities[index] ?? 0;
+                    const target = Number(opacity.toFixed(3));
+
+                    if (!img.dataset.opacity) {
+                        img.dataset.opacity = index === 0 ? '1' : '0';
+                    }
+                    const previous = Number(img.dataset.opacity);
+
+                    if (target > previous) {
+                        img.style.transition = `opacity ${pairedFadeDuration}ms ease-in-out`;
+                    } else if (target < previous) {
+                        img.style.transition = 'none';
+                    }
+
+                    img.style.opacity = target.toFixed(3);
+                    img.classList.toggle('is-active', index === rightState.activeIndex);
+                    img.style.visibility = target > 0.005 ? 'visible' : 'hidden';
+                    img.dataset.opacity = target.toString();
+                });
+            }
+        });
+
+        ticking = false;
+    };
+
+    const onScroll = () => {
+        if (!ticking) {
+            window.requestAnimationFrame(render);
+            ticking = true;
+        }
+    };
+
+    const handleResize = () => {
+        syncScrollSpacers();
+        syncPairedSpacers();
+        updateSplitMeasurements();
+        updatePairedMeasurements();
+        render();
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', handleResize);
+    render();
+});

@@ -4,315 +4,486 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>حماية البيئة في فلسطين</title>
-    <style>
-        :root {
-            --primary: #1a6e4f;
-            --primary-dark: #0f4c35;
-            --accent: #f0b429;
-            --text-dark: #102a23;
-            --text-light: #f9fbfa;
-            --bg: #f2f5f3;
+    <link rel="preload" as="image" href="assets/images/sec_1_1.png" />
+    <link rel="preload" as="image" href="assets/images/sec_1_2.png" />
+    <link rel="preload" as="image" href="assets/images/sec_1_3.png" />
+    <script src="index.js" defer></script>
+   <style>
+        @font-face {
+            font-family: 'Noto Kufi Arabic';
+            font-style: normal;
+            font-weight: 300 700;
+            font-display: swap;
+            src: url('assets/fonts/Noto_Kufi_Arabic/NotoKufiArabic-VariableFont_wght.ttf') format('truetype');
         }
 
-        * {
+        :root {
+            color-scheme: light;
+        }
+
+        *, *::before, *::after {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: "Tajawal", "Segoe UI", sans-serif;
         }
 
         body {
-            background: var(--bg);
-            color: var(--text-dark);
-            line-height: 1.8;
-        }
-
-        header {
-            background: linear-gradient(135deg, rgba(26, 110, 79, 0.92), rgba(15, 76, 53, 0.92)),
-            url("https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=80") center/cover;
-            color: var(--text-light);
-            padding: 120px 15px;
-            text-align: center;
-        }
-
-        header .badge {
-            display: inline-block;
-            padding: 8px 18px;
-            border-radius: 999px;
-            background: rgba(240, 180, 41, 0.2);
-            border: 1px solid rgba(240, 180, 41, 0.6);
-            font-size: 0.85rem;
-            margin-bottom: 20px;
-            letter-spacing: 0.08em;
-        }
-
-        header h1 {
-            font-size: clamp(2.2rem, 4vw, 3.4rem);
-            margin-bottom: 24px;
-            font-weight: 700;
-        }
-
-        header p {
-            font-size: clamp(1rem, 2.2vw, 1.3rem);
-            max-width: 700px;
-            margin: 0 auto;
-            opacity: 0.95;
-        }
-
-        .container {
-            max-width: 1024px;
-            margin: 0 auto;
-            padding: 60px 20px;
-        }
-
-        section {
-            background: #fff;
-            border-radius: 18px;
-            padding: 40px;
-            margin-bottom: 30px;
-            box-shadow: 0 18px 40px rgba(16, 42, 35, 0.08);
-        }
-
-        section h2 {
-            font-size: 1.8rem;
-            margin-bottom: 20px;
-            color: var(--primary-dark);
-        }
-
-        section p {
-            margin-bottom: 16px;
-            font-size: 1.05rem;
-        }
-
-        section ul {
-            list-style: none;
+            margin: 0;
             padding: 0;
-            margin-top: 16px;
+            color: #fff;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            font-family: 'Noto Kufi Arabic', 'Tajawal', 'Cairo', sans-serif;
         }
 
-        section li {
-            background: rgba(26, 110, 79, 0.05);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 14px;
+        main.scroll-gallery {
+            position: relative;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+        }
+
+        .image-display {
+            position: sticky;
+            top: 15px;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .image-display img {
+            position: absolute; 
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            will-change: opacity;
+        }
+        .sec-7 {
             position: relative;
         }
-
-        section li::before {
-            content: "•";
-            color: var(--accent);
-            position: absolute;
-            left: 20px;
-            font-size: 1.4rem;
-            top: 14px;
+        .sec-7 .image-display {
+            padding: 48px 0 220px;
+        }
+        .sec-7 .image-display img {
+            object-fit: contain;
+            object-position: top center;
+            height: auto;
+        }
+        .sec-7 .section-bottom {
+            position: fixed;
+            bottom: 24px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 2;
+            height: 80vh;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 220ms ease;
+        }
+        .sec-7.is-active .section-bottom {
+            opacity: 1;
+            visibility: visible;
+        }
+        .sec-7 .section-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(28px, 6vw, 64px);
+            color: rgba(255, 255, 255, 0.95);
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 260ms ease;
+            z-index: 3;
+        }
+        .sec-7.is-message-active .section-message {
+            opacity: 1;
+            visibility: visible;
+        }
+        .scroll-gallery--contain .image-display img {
+            object-fit: contain;
+        }
+        
+        .image-display img:first-of-type {
+            opacity: 1;
+        } 
+        .sec-7 .image-display img:first-of-type{
+          width: 92px;
+          margin: 0 auto;
+        }
+        .sec-7 .image-display img:last-of-type{
+         width: 94px;
+         margin: 0px auto;
+         top: -43px;
+        }
+        .sec-7 .image-display{
+            top: 70px;
+            overflow: visible;
         }
 
-        .grid {
-            display: grid;
-            gap: 20px;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        .scroll-spacer {
+            width: 100%;
+            height: 0;
+            pointer-events: none;
         }
 
-        .card {
-            border-radius: 14px;
-            background: rgba(26, 110, 79, 0.07);
-            padding: 24px;
-            box-shadow: inset 0 0 0 1px rgba(26, 110, 79, 0.08);
+        .split-gallery {
+            position: relative;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            background-image: url("assets/images/sec_2_bg.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
-        .card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 12px;
-            color: var(--primary-dark);
-        }
-
-        .steps {
-            counter-reset: step;
-        }
-
-        .steps li {
-            padding-right: 56px;
-            min-height: 64px;
-        }
-
-        .steps li::before {
-            counter-increment: step;
-            content: counter(step);
-            font-weight: 600;
-            background: var(--primary);
-            color: var(--text-light);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: inline-flex;
+        .split-image-container {
+            position: sticky;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: transparent;
+            display: flex;
             align-items: center;
             justify-content: center;
+            box-sizing: border-box;
+        }
+
+        .split-pan-image {
+            position: relative;
+            left: 230px;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transform: translateX(0) scale(1.2);
+            transform-origin: 50% 50%;
+            transition: transform 240ms ease-out, top 240ms ease-out;
+            will-change: transform, top;
+        }
+    
+        .split-caption-layer {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            box-shadow: 0 10px 25px rgba(26, 110, 79, 0.3);
+            inset: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            padding: 0 120px 60px;
         }
 
-        .cta {
-            background: var(--primary-dark);
-            color: var(--text-light);
+        .split-caption {
+            position: absolute; 
+            left: 300px;
+            width: min(850px, 50vw);
+            color: #fff;
+            padding: 24px 28px;
             border-radius: 18px;
-            padding: 32px 28px;
+            font-size: 20px;
+            line-height: 1.7;
+            bottom: -120px;
+            opacity: 0;
+            transition: bottom 200ms ease-out, opacity 200ms ease-out;
+            will-change: bottom, opacity;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(15, 76, 53, 0.35);
+        }
+        .split-gallery.sec_2 .split-caption {
+            left: initial;
+            right: 15px;
+        }
+        .split-gallery.sec_6 .split-caption {
+            left: initial;
+            right: 250px;
+        }
+        .split-caption.is-active {
+            opacity: 1;
         }
 
-        .cta h3 {
-            font-size: 1.6rem;
-            margin-bottom: 18px;
-        }
-
-        .cta a {
-            display: inline-block;
-            background: var(--accent);
-            color: var(--text-dark);
-            padding: 12px 28px;
-            border-radius: 999px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .cta a:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(240, 180, 41, 0.35);
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px 20px 60px;
+        .split-caption-note {
+            display: block;
+            margin-top: 12px;
             font-size: 0.9rem;
-            color: rgba(16, 42, 35, 0.7);
+            color: rgba(255, 255, 255, 0.8);
         }
 
-        @media (max-width: 720px) {
-            section {
-                padding: 28px;
+        .split-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .split-step { 
+            min-height: 180vh;
+            pointer-events: none;
+        } 
+ 
+        .paired-gallery {
+            position: relative; 
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            background-image: url("assets/images/sec_2_bg.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .paired-display {
+            position: sticky;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: grid;
+            gap: 36px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            padding: 0 9vw;
+            box-sizing: border-box;
+            align-items: center;
+            justify-items: stretch;
+        }
+
+        .paired-column {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 28px;
+            overflow: hidden;
+        }
+
+        .paired-column[data-stack="left"] {
+            order: 2;
+        }
+
+        .paired-column[data-stack="right"] {
+            order: 1;
+        }
+
+        .paired-column img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 320ms ease-in-out;
+        }
+
+        .paired-column img.is-active {
+            opacity: 1;
+        }
+
+        .paired-scroll-spacer {
+            width: 100%;
+            height: 0;
+            pointer-events: none;
+        }
+
+        @media (max-width: 960px) {
+            .paired-display {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 24px;
+                padding: 0 6vw;
             }
 
-            .steps li {
-                padding-right: 50px;
+            .paired-column {
+                height: clamp(320px, 82vh, 520px);
             }
 
-            .steps li::before {
-                right: 16px;
-                top: 26px;
+            .paired-column[data-stack="left"],
+            .paired-column[data-stack="right"] {
+                order: initial;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
             }
         }
     </style>
 </head>
 <body>
-<header>
-    <span class="badge">حماية البيئة مسؤوليتنا</span>
-    <h1>البيئة في فلسطين حق إنساني ومسؤولية وطنية</h1>
-    <p>
-        البيئة هي كل ما يحيط بنا من هواء وماء وتربة وكائنات حية ومنشآت. الحفاظ على هذا الحق واجب وطني وجماعي من أجل حاضر ومستقبل فلسطين.
-    </p>
-</header>
+    <main class="scroll-gallery">
+        <div class="image-display" aria-live="polite">
+            <img src="assets/images/sec_1_1.png" alt="مشهد طبيعي من فلسطين مع مبادرة تنظيف" data-image="sec_1_1" loading="lazy" />
+            <img src="assets/images/sec_1_2.png" alt="مجموعة شبابية تزرع الأشجار في فلسطين" data-image="sec_1_2" loading="lazy" />
+            <img src="assets/images/sec_1_3.png" alt="طاقة شمسية تغذي قرية فلسطينية" data-image="sec_1_3" loading="lazy" />
+        </div>
+        <div class="scroll-spacer" aria-hidden="true"></div>
+    </main>
+    <section class="split-gallery sec_2">
+        <div class="split-image-container">
+            <img src="assets/images/sec_2.png" alt="مشاهد بيئية متنوعة في فلسطين" loading="lazy" class="split-pan-image" />
+            <div class="split-caption-layer" aria-hidden="true">
+                <div class="split-caption" data-caption="0">
+                    <b style="color: rgb(0 170 101)">البيئة</b>
+                     هي كل ما يحيط بنا من هواء وماء وتربة وكائنات حية ومنشآت، وهي .الأساس الذي تقوم عليه حياتنا اليومية
 
-<div class="container">
-    <section>
-        <h2>البيئة كحق من حقوق الإنسان</h2>
-        <p>
-            ينظر القانون الأساسي الفلسطيني إلى البيئة كحق أصيل لكل مواطن، ويُلزم السلطة الوطنية بالحفاظ عليها وحمايتها للأجيال القادمة.
-        </p>
-        <p><strong>المادة 33 من القانون الأساسي الفلسطيني:</strong> البيئة النظيفة حق من حقوق الإنسان وعلى السلطة الوطنية الحفاظ عليها وحمايتها.</p>
-    </section>
+القانون الفلسطيني ينظر إلى البيئة كحق من حقوق الإنسان، ويعتبر الحفاظ عليها واجبًا وطنيًا ومسؤولية جماعية من أجل الحاضر والمستقبل
 
-    <section>
-        <h2>الجهات المسؤولة عن حماية البيئة</h2>
-        <div class="grid">
-            <div class="card">
-                <h3>سلطة جودة البيئة</h3>
-                <p>الجهة المركزية المخوّلة بوضع السياسات البيئية ومراقبة تنفيذ التشريعات والتفتيش على الالتزام.</p>
-            </div>
-            <div class="card">
-                <h3>الوزارات المتخصصة</h3>
-                <p>مثل وزارة الصحة، وزارة الزراعة، ووزارة الحكم المحلي التي تتكامل أدوارها لحماية الموارد الطبيعة.</p>
-            </div>
-            <div class="card">
-                <h3>النيابة العامة</h3>
-                <p>تقوم بمتابعة الجرائم البيئية وإحالة المخالفين إلى القضاء بناءً على قانون البيئة رقم (7) لسنة 1999.</p>
+,البيئة النظيفة حق من حقوق الإنسان وعلى السلطة الوطنية الفلسطينية الحفاظ عليها وحمايتها من أجل .أجيال الحاضر والمستقبل
+
+(المادة 33 من القانون الأساسي الفلسطيني)
+
+                </div>
+                <div class="split-caption" data-caption="2">
+                    من يحمي البيئة في فلسطين؟
+عدة جهات رسمية تعمل معًا لحماية البيئة الفلسطينية، أهمها
+:
+                </div>
             </div>
         </div>
-    </section>
-
-    <section>
-        <h2>ما هي الجريمة البيئية؟</h2>
-        <p>
-            كل فعل يخالف قانون البيئة رقم (7) لسنة 1999 ويتسبب بتلويث البيئة أو استنزاف مواردها، مما يضر بصحة الإنسان والكائنات الحية.
-        </p>
-        <ul>
-            <li>التلوث بمختلف أشكاله في الهواء والماء والتربة</li>
-            <li>تدمير النظم البيئية واستنزاف الموارد الطبيعية</li>
-            <li>الاتجار غير المشروع بالموارد أو الحياة البرية</li>
-            <li>التعامل غير القانوني مع النفايات الخطرة</li>
-        </ul>
-    </section>
-
-    <section>
-        <h2>شبهات الفساد في القطاع البيئي</h2>
-        <p>
-            تُعد شبهة الفساد البيئي استغلالاً للنفوذ أو تلاعباً بالإجراءات القانونية لتمرير أنشطة ملوثة مقابل منافع خاصة، وتشمل منح تراخيص مخالفة، تعطيل المساءلة، أو إخفاء الأدلة.
-        </p>
-    </section>
-
-    <section>
-        <h2>العقوبات القانونية</h2>
-        <p>
-            يعاقب القانون الفلسطيني مرتكبي الجرائم البيئية بعقوبات تشمل الغرامات المالية، إغلاق المنشآت المخالفة، وإحالة المسؤولين للقضاء، مع إمكانية فرض عقوبات أشد عند تكرار المخالفة أو تسببها بأضرار جسيمة.
-        </p>
-    </section>
-
-    <section>
-        <h2>كيف توثق مخالفة بيئية؟</h2>
-        <ul class="steps">
-            <li>تحديد المكان والزمان بدقة وجمع أي أدلة متاحة مثل الصور أو الفيديو.</li>
-            <li>وصف المخالفة بموضوعية وتحديد الجهة أو المنشأة المتسببة إن أمكن.</li>
-            <li>تسجيل تأثير المخالفة على البيئة أو الصحة العامة.</li>
-            <li>التواصل مع الجهات المختصة لتقديم بلاغ رسمي.</li>
-        </ul>
-    </section>
-
-    <section>
-        <h2>متابعة الجهات الرسمية للمخالفات</h2>
-        <div class="grid">
-            <div class="card">
-                <h3>تلقي الشكاوى</h3>
-                <p>تستقبل سلطة جودة البيئة البلاغات عبر الهاتف، المنصات الرقمية، أو زيارات المواطنين.</p>
+        <div class="split-steps" aria-hidden="true">
+            <div class="split-step" data-segment="overview"></div>  
+            <div class="split-step" data-segment="left"></div>
+            <div class="split-step" data-segment="center"></div> 
+            <div class="split-step" data-segment="right"></div>
+            <div class="split-step" data-segment="reset"></div>
+        </div>
+    </section>  
+    <section class="paired-gallery">
+        <div class="paired-display" aria-live="polite">
+            <div class="paired-column" data-stack="left">
+                    <img src="assets/images/sec_3_1.png" alt="برنامج توعية بيئية في فلسطين" loading="lazy" data-stage="0" class="is-active" />
+                    <img src="assets/images/sec_3_3.png" alt="أنشطة تشجير في القرى الفلسطينية" loading="lazy" data-stage="1" />
+                    <img src="assets/images/sec_3_5.png" alt="مبادرات لإعادة تدوير المخلفات في فلسطين" loading="lazy" data-stage="2" />
             </div>
-            <div class="card">
-                <h3>التفتيش الميداني</h3>
-                <p>المفتشون المخولون يمتلكون صفة الضابطة العدلية لدخول المنشآت وأخذ العينات وضبط الأدلة.</p>
-            </div>
-            <div class="card">
-                <h3>الإجراءات القانونية</h3>
-                <p>تُرفع التقارير إلى النيابة العامة لاتخاذ الإجراءات، ومتابعة تنفيذ القرارات بحق المخالفين.</p>
+            <div class="paired-column" data-stack="right">
+                    <img src="assets/images/sec_3_2.png" alt="متطوعون ينظفون الشواطئ الفلسطينية" loading="lazy" data-stage="0" class="is-active" />
+                    <img src="assets/images/sec_3_6.png" alt="حملات لنظافة الأحياء الفلسطينية" loading="lazy" data-stage="1" />
             </div>
         </div>
+        <div class="paired-scroll-spacer" aria-hidden="true"></div>
     </section>
+    <section class="split-gallery">
+        <div class="split-image-container">
+            <img src="assets/images/sec_4.png" alt="مشاريع بيئية مبتكرة في فلسطين" loading="lazy" class="split-pan-image sec_4" />
+            <div class="split-caption-layer" aria-hidden="true">
+                <div class="split-caption" data-caption="2">
+                    <b style="color: #FBB516;font-size: 24px;">الجريمة البيئية </b>
+                    <p>
+                        الجريمة البيئية في فلسطين هي كل فعل يخالف قانون البيئة رقم (7) لسنة 1999 ويتسبب بتلويث البيئة أو استنزاف مواردها، مما يضر بصحة الإنسان والكائنات الحية وتشمل التلوث، تدمير النظم البيئية، الاتجار غير المشروع بالموارد، والتعامل غير القانوني مع النفايات الخطرة
+                    </p>
+                    <b style="color: #FBB516;font-size: 24px;">
 
-    <section>
-        <h2>الاتفاقيات الدولية</h2>
-        <p>
-            انضمت دولة فلسطين إلى عدة اتفاقيات بيئية عالمية، بما في ذلك اتفاقية باريس للمناخ، اتفاقية التنوع البيولوجي، واتفاقية مكافحة التصحر، ما يعزز التزامها بحماية البيئة عالمياً.
-        </p>
+                        شبهة الفساد في القطاع البيئي:
+                    </b>
+                    <p>
+                        هي شبهة استغلال النفوذ أو التلاعب بالإجراءات القانونية لتمرير أنشطة ملوِّثة أو مدمّرة للموارد الطبيعية مقابل منافع خاصة
+                    </p>
+                    <b style="color: #FBB516;font-size: 24px;">
+
+                        القانون يعاقب هذه الأفعال بالعقوبات التالية:
+
+                    </b>
+                    <img width="780" src="assets/images/sec_4_text_2.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
+
+                    <img width="780" src="assets/images/sec_4_text_1.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
+                </div>
+                <div class="split-caption" data-caption="3">
+                    <b style="color: #FBB516;font-size: 24px;">
+                        ماذا تفعل إذا شاهدت مخالفة بيئية؟
+                    </b>
+                    <p>
+                        يجب أن توثّق ما يلي بدقة وموضوعية:
+                    </p>
+                    <img width="780" src="assets/images/sec_4_text_3.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
+
+                </div>
+            </div>
+        </div>
+        <div class="split-steps" aria-hidden="true">
+            <div class="split-step" data-segment="overview"></div>
+            <div class="split-step" data-segment="left"></div>
+            <div class="split-step" data-segment="center"></div>
+            <div class="split-step" data-segment="right"></div>
+            <div class="split-step" data-segment="far-right"></div>
+            <div class="split-step" data-segment="reset"></div>
+        </div>
+    </section> 
+    <main class="scroll-gallery scroll-gallery--contain" style="background-image: url('assets/images/sec_2_bg.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
+        <div class="image-display" aria-live="polite">
+            <img src="assets/images/sec_5_1.png" alt="مشروع تنظيف مستمر للشواطئ الفلسطينية" data-image="sec_5_1" loading="lazy" />
+            <img src="assets/images/sec_5_2.png" alt="ورش توعية حول إعادة التدوير في المدارس الفلسطينية" data-image="sec_5_2" loading="lazy" />
+            <img src="assets/images/sec_5_3.png" alt="مبادرات محلية لزراعة الأسطح والمسطحات الخضراء" data-image="sec_5_3" loading="lazy" />
+            <img src="assets/images/sec_5_4.png" alt="شبكات تعاون بين الشباب لحماية البيئة" data-image="sec_5_4" loading="lazy" />
+            <img src="assets/images/sec_5_5.png" alt="تقنيات حديثة لتحلية المياه في فلسطين" data-image="sec_5_5" loading="lazy" />
+            <img src="assets/images/sec_5_6.png" alt="أنظمة طاقة شمسية تدعم المجتمعات الريفية" data-image="sec_5_6" loading="lazy" />
+            <img src="assets/images/sec_5_7.png" alt="حملات تشجير واسعة على مستوى الوطن" data-image="sec_5_7" loading="lazy" />
+        </div>
+        <div class="scroll-spacer" aria-hidden="true"></div>
+    </main>
+    <section class="split-gallery sec_6">
+        <div class="split-image-container">
+            <img src="assets/images/sec_6.png" alt="حلول بيئية مبتكرة" loading="lazy" class="split-pan-image" />
+            <div class="split-caption-layer" aria-hidden="true">
+                <div class="split-caption" data-caption="0">
+                    <b style="color: #FBB516;font-size: 24px;">
+                        كيف تُتابع الجهات الرسمية المخالفات؟
+                    </b>
+                    <p>
+                        عند ورود شكوى أو رصد مخالفة، تقوم الجهات المختصة بما يلي:
+
+                    </p>
+                
+                    <img width="780" src="assets/images/sec_6_2.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
+                        <p>
+                            القانون يمنح مفتشي سلطة جودة البيئة صفة الضابطة العدلية، أي الحق في دخول المنشآت، أخذ العينات .وضبط الأدلة
+                        </p>
+                        <b style="color: #FBB516;font-size: 24px;">
+                            الاتفاقيات الدولية التي انضمت إليها فلسطين:
+                        </b>
+                        <p>
+                            انضمت دولة فلسطين إلى عدد من الاتفاقيات البيئية العالمية، مثل:
+
+                        </p>
+                    <img width="780" src="assets/images/sec_6_3.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
+                </div>
+                <div class="split-caption" data-caption="1">
+                    <img width="780" src="assets/images/sec_6_1.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
+                </div>
+            </div>
+        </div>
+        <div class="split-steps" aria-hidden="true">
+            <div class="split-step" data-segment="overview"></div>
+            <div class="split-step" data-segment="left"></div>
+            <div class="split-step" data-segment="center"></div>
+            <div class="split-step" data-segment="reset"></div>
+        </div> 
     </section>
-
-    <section class="cta">
-        <h3>ساهم في حماية بيئتنا</h3>
-        <p>كل مواطن قادر على إحداث فرق بالإبلاغ عن المخالفات والمشاركة في المبادرات البيئية.</p>
-        <a href="mailto:info@environment.gov.ps">راسل الجهات المختصة</a>
-    </section>
-</div>
-
-<footer>
-    © 2025 فلسطين | معًا نحمي البيئة الحاضر والمستقبل.
-</footer>
+    <main class="scroll-gallery sec-7 scroll-gallery--contain" style="background-image: url('assets/images/sec_2_bg.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
+        <div class="image-display" aria-live="polite">
+            <img src="assets/images/sec_7_1.png" alt="نشاط بيئي يسلط الضوء على المجتمع" data-image="sec_7_1" loading="lazy" />
+            <img src="assets/images/sec_7_2.png" alt="استكمال الجهود البيئية المجتمعية" data-image="sec_7_2" loading="lazy" />
+        </div>
+        <div class="section-message" aria-hidden="true">
+            <p style="font-size: 24px; font-weight: 700; color: #FBB516">
+                صوّر، دوّن، وثّق، وأبلغ فوراً عبر الرابط التالي:
+            </p>
+            <a style="    background-color: #FBB516; 
+            color: #fff;
+            font-size: 18px;
+            padding: 10px;
+            border-radius: 10px;
+            text-decoration: none;" href="https://portal.pengon.org/complaint" target="_blank">اضغط هنا</a>
+            <p style="font-size: 24px; font-weight: 700; color: #FBB516">
+                صوتك يحمي البيئة
+            </p>
+        </div>
+        <div class="section-bottom" aria-hidden="true">
+            <img src="assets/images/sec_7.png" alt="شعار يدعو للاستمرار في حماية البيئة" loading="lazy" />
+        </div>
+        <div class="scroll-spacer" aria-hidden="true"></div>
+    </main>
 </body>
 </html>
