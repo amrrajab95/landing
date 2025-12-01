@@ -1,23 +1,24 @@
+console.log(window.innerWidth, window.innerHeight);
 document.addEventListener('DOMContentLoaded', () => {
     const BASE_SPLIT_WIDTH = 1905;
     const BASE_SPLIT_HEIGHT = 910;
-    const transitionDistance = 950;  
-    const tailPaddingFactor = 0.07; 
-    const pairedTransitionDistance = 820;
-    const pairedHeadPaddingFactor = 0.25;
-    const pairedTailPaddingFactor = 0.3; 
-    const pairedInitialOffsetFactor = 0.12;
-    const pairedFadeDuration = 340;
+    const transitionDistance = 220;  
+    const tailPaddingFactor = 0.03; 
+    const pairedTransitionDistance = 280;
+    const pairedHeadPaddingFactor = 0.11;
+    const pairedTailPaddingFactor = 0.15; 
+    const pairedInitialOffsetFactor = 0.08;
+    const pairedFadeDuration = 240;
     const leftTransitionHolds = [0, 0];
     const getCaptionBaseBottom = () => -Math.max((window?.innerHeight || 800) * 0.6, 320);
     const getCaptionExtra = () => Math.max((window?.innerHeight || 0) * 1.25, 900);
     const splitConfigs = [
         [
-        { translateX: 100, scale: 1.2, top: 0, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
-        { translateX: 1620, scale: 2.8, top: -220, bottom: null, captionIndex: 0, duration: 800, ease: 'linear' },
-        { translateX: 120, scale: 2.18, top: 120, bottom: null, captionIndex: 1, duration: 800, ease: 'linear' },
-        { translateX: -1540, scale: 2.55, top: 150, bottom: null, captionIndex: 2, duration: 800, ease: 'linear' },
-        { translateX: -230, scale: 0.8, top: 60, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
+            { translateX: 100, scale: 1.2, top: 0, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
+            { translateX: 1620, scale: 2.8, top: -220, bottom: null, captionIndex: 0, duration: 800, ease: 'linear' },
+            { translateX: 120, scale: 2.18, top: 120, bottom: null, captionIndex: 1, duration: 800, ease: 'linear' },
+            { translateX: -1540, scale: 2.55, top: 150, bottom: null, captionIndex: 2, duration: 800, ease: 'linear' },
+            { translateX: -230, scale: 0.8, top: 60, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
         ],
         [
             { translateX: -130, scale: 0.99, top: -20, bottom: null, captionIndex: -1, duration: 820, ease: 'linear' },
@@ -28,10 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
             { translateX: -130, scale: 0.99, top: -20, bottom: null, captionIndex: -1, duration: 820, ease: 'linear' },
         ],
         [
-            { translateX: 280, scale: 1.4, top: -150, bottom: null, captionIndex: -1, duration: 780, ease: 'linear' },
-            { translateX: 915, scale: 1.8, top: 0, bottom: null, captionIndex: 0, duration: 780, ease: 'linear' },
-            { translateX: -865, scale: 2.4, top: -85, bottom: null, captionIndex: 1, duration: 780, ease: 'linear' },
-            { translateX: -200, scale: 0.95, top: -90, bottom: null, captionIndex: -1, duration: 780, ease: 'linear' },
+            { translateX: 145, scale: 1.2, top: -80, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
+            { translateX: 520, scale: 1.55, top: 0, bottom: null, captionIndex: 0, duration: 520, ease: 'linear' },
+            { translateX: -580, scale: 1.98, top: -60, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
+            { translateX: -160, scale: 0.95, top: -70, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
         ],
     ];
     const splitGalleries = Array.from(document.querySelectorAll('.split-gallery')).map((gallery, index) => {
@@ -92,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
     const sec7Gallery = document.querySelector('.scroll-gallery.sec-7') || null;
+    const sec7Footer = sec7Gallery?.querySelector('.section-bottom') || null;
 
 
     const hasSplitGalleries = splitGalleries.some(
@@ -286,7 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let accumulator = 0;
 
             steps.forEach((step) => {
-            const height = step.offsetHeight;
+            const height = Math.max(step.offsetHeight, window.innerHeight * 0.7);
             offsets.push({
                 start: accumulator,
                 end: accumulator + height,
@@ -514,8 +516,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const messageNode = isSectionSeven
                 ? gallery.querySelector('.section-message')
                 : null;
+            const overlayNode = isSectionSeven
+                ? gallery.querySelector('.section-overlay')
+                : null;
             const hasMessageTarget =
                 isSectionSeven && lastImageIndex >= 0 && messageNode;
+            const hasOverlayTarget =
+                isSectionSeven && lastImageIndex >= 0 && overlayNode;
 
         images.forEach((img, index) => {
                 let opacity = computeOpacity(index, localScroll);
@@ -539,9 +546,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const rawProgress = reachedFullOpacity
                         ? (localScroll - fadeInStart) / fadeInDuration
                         : -1;
-                    const clampedProgress = clamp(rawProgress, 0, 1);
+                    const clampedProgress = clamp(rawProgress, -0.02, 1);
                     const isVisible =
-                        reachedFullOpacity && clampedProgress > 0.02;
+                        reachedFullOpacity && clampedProgress > 0;
 
                     messageNode.style.opacity = isVisible
                         ? clampedProgress.toFixed(3)
@@ -555,6 +562,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         gallery.classList.remove('is-message-active');
                     }
+
+                    if (hasOverlayTarget) {
+                        const overlayDelay = 0.96;
+                        const overlayProgress = clamp(
+                            (clampedProgress - overlayDelay) /
+                                Math.max(1 - overlayDelay, 0.0001),
+                            0,
+                            1
+                        );
+                        const overlayVisible = overlayProgress > 0;
+
+                        if (overlayVisible) {
+                            sec7Gallery.classList.add('is-overlay-active');
+                            overlayNode.style.opacity =
+                                overlayProgress.toFixed(3);
+                            overlayNode.style.visibility = 'visible';
+                            overlayNode.style.transform = `translate(-50%, ${(
+                                (1 - overlayProgress) *
+                                140
+                            ).toFixed(3)}%)`;
+                        } else {
+                            overlayNode.style.opacity = '0';
+                            overlayNode.style.visibility = 'hidden';
+                            overlayNode.style.transform = 'translate(-50%, 160%)';
+                            sec7Gallery.classList.remove('is-overlay-active');
+                        }
+                    }
                 }
             });
         });
@@ -565,8 +599,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const galleryBottom = galleryTop + galleryHeight;
             const inSection =
                 scrollY + viewportHeight > galleryTop && scrollY < galleryBottom;
+            const exitDistance = Math.max(galleryTop - scrollY, 0);
+            const hasExit = exitDistance > 0 && exitDistance < viewportHeight * 2;
 
-            sec7Gallery.classList.toggle('is-active', inSection);
+            sec7Gallery.classList.toggle('is-active', inSection || hasExit);
+
+            if (sec7Footer) {
+                if (hasExit) {
+                    const exitProgress = clamp(
+                        exitDistance / Math.max(viewportHeight * 0.75, 1),
+                        0,
+                        1
+                    );
+                    const translateAmount = exitProgress * 140;
+                    const opacityValue = clamp(1 - exitProgress * 1.35, 0, 1);
+
+                    sec7Footer.style.transform = `translateY(${translateAmount.toFixed(
+                        3
+                    )}%)`;
+                    sec7Footer.style.opacity = opacityValue.toFixed(3);
+                } else if (inSection) {
+                    sec7Footer.style.transform = 'translateY(0)';
+                    sec7Footer.style.opacity = '1';
+                } else {
+                    sec7Footer.style.transform = '';
+                    sec7Footer.style.opacity = '';
+                }
+            }
         }
 
         applySplitTransform(scrollY);
@@ -585,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const hasLeft = Array.isArray(leftItems) && leftItems.length > 0;
             const hasRight = Array.isArray(rightItems) && rightItems.length > 0;
 
-            if ((!hasLeft && !hasRight) || !measurements) {
+            if ((!hasLeft && !hasRight) || !measurements) { 
                 return;
             }
 
@@ -687,5 +746,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', handleResize);
-    render();
+    render(); 
+    
 });

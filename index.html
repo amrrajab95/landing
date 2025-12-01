@@ -70,7 +70,7 @@
         }
         .sec-7 .section-bottom {
             position: fixed;
-            bottom: 24px;
+            bottom: 125px;
             left: 0;
             width: 100%;
             display: flex;
@@ -80,7 +80,8 @@
             height: 80vh;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 220ms ease;
+            transform: translateY(0);
+            transition: opacity 220ms ease, transform 220ms ease;
         }
         .sec-7.is-active .section-bottom {
             opacity: 1;
@@ -94,7 +95,6 @@
             font-size: clamp(28px, 6vw, 64px);
             color: rgba(255, 255, 255, 0.95);
             text-align: center;
-            pointer-events: none;
             opacity: 0;
             visibility: hidden;
             transition: opacity 260ms ease;
@@ -103,6 +103,23 @@
         .sec-7.is-message-active .section-message {
             opacity: 1;
             visibility: visible;
+            pointer-events: auto;
+        }
+        .sec-7 .section-overlay {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translate(-50%, 120%);
+            pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 260ms ease, transform 260ms ease;
+            z-index: 4;
+        }
+        .sec-7.is-overlay-active .section-overlay {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, 0);
         }
         .scroll-gallery--contain .image-display img {
             object-fit: contain;
@@ -118,7 +135,7 @@
         .sec-7 .image-display img:last-of-type{
          width: 94px;
          margin: 0px auto;
-         top: -43px;
+         top: -43px; 
         }
         .sec-7 .image-display{
             top: 70px;
@@ -155,10 +172,10 @@
             justify-content: center;
             box-sizing: border-box;
         }
-
+ 
         .split-pan-image {
             position: relative;
-            left: 230px;
+            left: 210px;
             top: 0;
             width: 100%;
             height: 100%;
@@ -220,7 +237,7 @@
         }
 
         .split-step { 
-            min-height: 180vh;
+            min-height: 110vh;
             pointer-events: none;
         } 
  
@@ -310,9 +327,99 @@
                 animation-duration: 0.01ms !important;
             }
         }
+        @media (max-width: 1368px) {
+            .split-pan-image {
+                left: 0;
+            }
+            .split-caption {
+                left: 50%;
+                transform: translateX(-50%);
+                width: min(90vw, 620px);
+                bottom: -80px;
+                padding: 20px 24px;
+                font-size: 18px;
+            }
+            .split-caption-layer {
+                padding: 0 32px 48px;
+            }
+            .split-gallery.sec_2 .split-caption,
+            .split-gallery.sec_6 .split-caption {
+                right: initial;
+            }
+            .split-gallery.sec_2 .split-caption,
+            .split-gallery.sec_6 .split-caption {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .split-gallery.sec_6 .split-caption img {
+                width: 100%;
+                height: auto;
+            }
+        }
+        @media (max-width: 1024px) {
+            .image-display {
+                top: 0;
+            }
+            .split-image-container {
+                height: 92vh;
+            }
+            .split-caption {
+                width: min(92vw, 520px);
+                font-size: 17px;
+                line-height: 1.55;
+            }
+            .split-gallery.sec_6 .split-caption img,
+            .split-gallery .split-caption img {
+                max-width: 100%;
+            }
+            .section-message {
+                width: min(88vw, 540px);
+            }
+            .section-message a {
+                display: inline-block;
+                margin-top: 12px;
+            }
+            .section-overlay img {
+                max-width: min(540px, 82vw);
+            }
+        }
+        @media (max-width: 768px) {
+            .split-image-container {
+                height: 88vh;
+            }
+            .split-caption {
+                bottom: -40px;
+                padding: 16px 18px;
+                font-size: 16px;
+            }
+            .split-caption-layer {
+                padding: 0 18px 32px;
+            }
+            .split-gallery {
+                background-attachment: scroll;
+            }
+            .split-gallery.sec_6 .split-caption img {
+                width: 100%;
+            }
+            .section-message {
+                top: 46%;
+                padding: 0 12px;
+                font-size: clamp(22px, 7vw, 38px);
+            }
+            .section-message p {
+                margin-bottom: 18px;
+            }
+            .section-overlay {
+                bottom: 16px;
+            }
+            .section-bottom {
+                bottom: 16px;
+                height: 65vh;
+            }
+        }
     </style>
 </head>
-<body>
+<body> 
     <main class="scroll-gallery">
         <div class="image-display" aria-live="polite">
             <img src="assets/images/sec_1_1.png" alt="مشهد طبيعي من فلسطين مع مبادرة تنظيف" data-image="sec_1_1" loading="lazy" />
@@ -478,7 +585,10 @@
             text-decoration: none;" href="https://portal.pengon.org/complaint" target="_blank">اضغط هنا</a>
             <p style="font-size: 24px; font-weight: 700; color: #FBB516">
                 صوتك يحمي البيئة
-            </p>
+            </p> 
+        </div> 
+        <div class="section-overlay" aria-hidden="true">
+            <img src="assets/images/sec_7_3.png" width="250" alt="شعار الجهات الداعمة" style="height: auto;position: relative;top: 15px;" loading="lazy" />
         </div>
         <div class="section-bottom" aria-hidden="true">
             <img src="assets/images/sec_7.png" alt="شعار يدعو للاستمرار في حماية البيئة" loading="lazy" />
