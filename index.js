@@ -1,4 +1,3 @@
-console.log(window.innerWidth, window.innerHeight);
 document.addEventListener('DOMContentLoaded', () => {
     const BASE_SPLIT_WIDTH = 1905;
     const BASE_SPLIT_HEIGHT = 910;
@@ -12,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const leftTransitionHolds = [0, 0];
     const getCaptionBaseBottom = () => -Math.max((window?.innerHeight || 800) * 0.6, 320);
     const getCaptionExtra = () => Math.max((window?.innerHeight || 0) * 1.25, 900);
-    const splitConfigs = [
+    const splitConfigsDesktop = [
         [
             { translateX: 100, scale: 1.2, top: 0, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
             { translateX: 1620, scale: 2.8, top: -220, bottom: null, captionIndex: 0, duration: 800, ease: 'linear' },
@@ -34,7 +33,54 @@ document.addEventListener('DOMContentLoaded', () => {
             { translateX: -580, scale: 1.98, top: -60, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
             { translateX: -160, scale: 0.95, top: -70, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
         ],
+    ]; 
+    const splitConfigsLandscapeMobile = [
+        [
+            { translateX: 115, scale: 1.2, top: -10, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false },
+            { translateX: 875, scale: 2.8, top: -105, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 105, scale: 2.4, top: 68, bottom: null, captionIndex: 1, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            {
+                translateX: -675,
+                scale: 2.5,
+                top: 68,
+                bottom: null,
+                captionIndex: 2,
+                duration: 760,
+                ease: 'linear',
+                captionOffsetFactor: -0.36,
+                captionSpeedFactor: 1.2,
+                captionHoldAtTop: 0.2,
+                captionFadeWindow: 0.08,
+                captionExtraFactor: 0,
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: 0,
+                scale: 0.9,
+                top: 60,
+                bottom: null,
+                captionIndex: -1,
+                duration: 680,
+                ease: 'linear',
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+        ],
+        [
+            { translateX: 41, scale: 1, top: 1, bottom: null, captionIndex: -1, duration: 460, ease: 'linear', captionOffset: -110, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 281, scale: 1.5, top: -9, bottom: null, captionIndex: 0, duration: 460, ease: 'linear', captionOffset: -110, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 10, scale: 2.4, top: 20, bottom: null, captionIndex: 1, duration: 820, ease: 'linear' },
+            { translateX: -1050, scale: 1.89, top: 80, bottom: null, captionIndex: 2, duration: 820, ease: 'linear' },
+            { translateX: -3940, scale: 5, top: -260, bottom: null, captionIndex: 3, duration: 820, ease: 'linear' },
+            { translateX: -130, scale: 0.99, top: -20, bottom: null, captionIndex: -1, duration: 820, ease: 'linear' },
+        ],
     ];
+    const splitConfigs = window.innerWidth <= 960 && window.innerHeight <= 620
+        ? splitConfigsLandscapeMobile
+        : splitConfigsDesktop;
     const splitGalleries = Array.from(document.querySelectorAll('.split-gallery')).map((gallery, index) => {
         const container = gallery.querySelector('.split-image-container');
         const steps = Array.from(gallery.querySelectorAll('.split-step'));
@@ -287,12 +333,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const offsets = [];
         let accumulator = 0;
 
-            steps.forEach((step) => {
+            steps.forEach((step, stepIndex) => {
             const height = Math.max(step.offsetHeight, window.innerHeight * 0.7);
             offsets.push({
                 start: accumulator,
                 end: accumulator + height,
                 duration: height,
+                isLast: stepIndex === steps.length - 1,
             });
             accumulator += height;
         });
@@ -320,7 +367,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const BASE_VIEWPORT_WIDTH = 1920;
+    const BASE_VIEWPORT_HEIGHT = 911;
+
+    const getViewportScaleFactor = () => {
+        const currentWidth = window.innerWidth || BASE_VIEWPORT_WIDTH;
+        const currentHeight = window.innerHeight || BASE_VIEWPORT_HEIGHT;
+        const widthRatio = clamp(currentWidth / BASE_VIEWPORT_WIDTH, 0.55, 1);
+        const heightRatio = clamp(currentHeight / BASE_VIEWPORT_HEIGHT, 0.55, 1);
+        return Math.min(widthRatio, heightRatio);
+    };
+
     const applySplitTransform = (scrollY) => {
+        const viewportScaleFactor = getViewportScaleFactor();
         splitGalleries.forEach((entry, index) => {
             const { container, measurements, config } = entry;
             if (!container || !measurements) {
@@ -382,16 +441,32 @@ document.addEventListener('DOMContentLoaded', () => {
         let scale = current.scale ?? 1;
         let translateX = current.translateX ?? 0;
         let topOffset = current.top ?? 0;
-            let bottomOffset = current.bottom;
-            if (typeof translateX === 'number') {
-                translateX *= widthScale;
-            }
-            if (typeof topOffset === 'number') {
-                topOffset *= heightScale;
-            }
-            if (typeof bottomOffset === 'number') {
-                bottomOffset *= heightScale;
-            }
+        let bottomOffset = current.bottom;
+        const shouldScaleTranslateX =
+            typeof current.applyWidthScale === 'boolean'
+                ? current.applyWidthScale
+                : true;
+        if (typeof translateX === 'number' && shouldScaleTranslateX) {
+            translateX *= widthScale;
+        }
+        const shouldScaleHeightOffsets =
+            typeof current.applyHeightScale === 'boolean'
+                ? current.applyHeightScale
+                : true;
+        if (typeof topOffset === 'number' && shouldScaleHeightOffsets) {
+            topOffset *= heightScale;
+        }
+        if (typeof bottomOffset === 'number' && shouldScaleHeightOffsets) {
+            bottomOffset *= heightScale;
+        }
+        const shouldApplyViewportScale =
+            typeof current.applyViewportScale === 'boolean'
+                ? current.applyViewportScale
+                : true;
+        if (viewportScaleFactor < 0.999 && shouldApplyViewportScale) {
+            const blend = 0.6 + viewportScaleFactor * 0.4;
+            scale *= blend;
+        }
         const durationMs = current.duration ?? 240; 
         const ease = current.ease ?? 'ease-out';
 
@@ -432,8 +507,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 image.style.bottom = `${bottomOffset}px`;
             }
 
-                const captionNodes = container.querySelectorAll('.split-caption');
+            const captionNodes = container.querySelectorAll('.split-caption');
             const captionIndex = current.captionIndex ?? -1;
+
+            const configuredCaptionOffset =
+                (typeof current.captionOffset === 'number'
+                    ? current.captionOffset
+                    : 0) +
+                (typeof current.captionOffsetFactor === 'number'
+                    ? (window.innerHeight || BASE_SPLIT_HEIGHT) *
+                      current.captionOffsetFactor
+                    : 0);
+            const defaultCaptionOffset = -50;
 
             captionNodes.forEach((captionNode) => {
                 const isTarget =
@@ -448,8 +533,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         0
                     );
 
-                    const startDelay = 0.0;
-                    const holdAtTop = 0.12;
+                    const startDelay = clamp(current.captionStartDelay ?? 0.0, 0, 0.3);
+                    const holdAtTop = clamp(current.captionHoldAtTop ?? 0.12, 0, 0.35);
+                    const speedFactor = Math.max(current.captionSpeedFactor ?? 1, 0.1);
+                    const fadeWindow = clamp(current.captionFadeWindow ?? 0.06, 0.03, 0.18);
+                    const captionOffset = configuredCaptionOffset || defaultCaptionOffset;
+
                     let activeProgress = 0;
 
                     if (segmentProgress <= startDelay) {
@@ -460,11 +549,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         activeProgress =
                             (segmentProgress - startDelay) / Math.max(1 - holdAtTop - startDelay, 0.0001);
                     }
-
-                    const bottomValue = captionBaseBottom + travelDistance * activeProgress;
  
+                    const adjustedProgress = Math.pow(activeProgress, speedFactor);
+
+                    const bottomValue =
+                        captionBaseBottom +
+                        captionOffset +
+                        travelDistance * adjustedProgress;
+
                     let opacity = 1; 
-                    const fadeWindow = 0.06;
                     if (segmentProgress < fadeWindow) {
                         opacity = clamp(segmentProgress / fadeWindow, 0, 1);
                     } else if (segmentProgress > 1 - fadeWindow) {
@@ -476,7 +569,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     captionNode.style.bottom = `${bottomValue}px`;
                     captionNode.style.opacity = `${opacity}`;
                 } else {
-                    captionNode.style.bottom = `${captionBaseBottom}px`;
+                    const captionOffset =
+                        configuredCaptionOffset || defaultCaptionOffset;
+                    if (
+                        parseFloat(captionNode.style.opacity || '0') <= 0.01
+                    ) {
+                        captionNode.style.bottom = `${
+                            captionBaseBottom + captionOffset
+                        }px`;
+                    }
                     captionNode.style.opacity = '0';
                 }
             });
