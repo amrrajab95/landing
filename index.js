@@ -11,21 +11,144 @@ document.addEventListener('DOMContentLoaded', () => {
     const leftTransitionHolds = [0, 0];
     const getCaptionBaseBottom = () => -Math.max((window?.innerHeight || 800) * 0.6, 320);
     const getCaptionExtra = () => Math.max((window?.innerHeight || 0) * 1.25, 900);
+
+    const STEP_BASE_HEIGHT_FLOOR = 800;
+    const getBaseStepHeight = () =>
+        Math.max((window?.innerHeight || BASE_SPLIT_HEIGHT) * 2, STEP_BASE_HEIGHT_FLOOR);
+
+    const getCaptionNodeHeight = (container, captionIndex) => {
+        if (!container || captionIndex < 0) {
+            return 0;
+        }
+        const captionNode = container.querySelector(
+            `.split-caption[data-caption="${captionIndex}"]`
+        );
+        if (!captionNode) {
+            return 0;
+        }
+        const height = captionNode.offsetHeight || captionNode.scrollHeight || 0;
+        return height;
+    };
+
+    const computeStepScrollHeight = (cfg, container) => {
+        const base = getBaseStepHeight();
+        if (!cfg) {
+            return base;
+        }
+        const captionIndex = cfg.captionIndex ?? -1;
+        if (captionIndex < 0) {
+            const viewportHeight = window?.innerHeight || BASE_SPLIT_HEIGHT;
+            const nonCaptionBase = Math.max(
+                viewportHeight * 0.6,
+                STEP_BASE_HEIGHT_FLOOR * 0.45
+            );
+            const explicitExtra = Math.max(cfg.extraScroll ?? 0, 0);
+            return nonCaptionBase + explicitExtra;
+        }
+        const captionHeight =
+            captionIndex >= 0 ? getCaptionNodeHeight(container, captionIndex) : 0;
+        const explicitExtra = Math.max(cfg.extraScroll ?? 0, 0);
+        return base + captionHeight + explicitExtra;
+    };
+
+    const setStepHeightsForGallery = (steps, config, container) => {
+        if (!Array.isArray(steps) || steps.length === 0) {
+            return;
+        }
+        steps.forEach((stepNode, index) => {
+            const cfg =
+                config[index] ||
+                config[config.length - 1] ||
+                null;
+            const scrollHeight = computeStepScrollHeight(cfg, container);
+            if (stepNode) {
+                stepNode.style.height = `${scrollHeight}px`;
+                stepNode.style.minHeight = `${scrollHeight}px`;
+                stepNode.dataset.scrollHeight = String(scrollHeight);
+            }
+        });
+    };
+
+    const normalizeSplitEntry = (entry) => {
+        if (!entry || typeof entry !== 'object') {
+            return entry;
+        }
+        const normalized = { ...entry };
+        normalized.captionSpeedFactor = 1;
+        normalized.captionHoldAtTop = 0;
+        normalized.captionStartDelay = 0;
+        normalized.extraScroll = Math.max(normalized.extraScroll ?? 0, 0);
+        return normalized;
+    };
     const splitConfigsDesktop = [
         [
-            { translateX: 100, scale: 1.2, top: 0, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
-            { translateX: 1620, scale: 2.8, top: -220, bottom: null, captionIndex: 0, duration: 800, ease: 'linear' },
-            { translateX: 120, scale: 2.18, top: 120, bottom: null, captionIndex: 1, duration: 800, ease: 'linear' },
-            { translateX: -1540, scale: 2.55, top: 150, bottom: null, captionIndex: 2, duration: 800, ease: 'linear' },
-            { translateX: -230, scale: 0.8, top: 60, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
+            { translateX: -520, scale: 1.3, top: 310, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
+            { translateX: 932, scale: 2.9, top: 50, bottom: null, captionIndex: 0, duration: 800, ease: 'linear' },
+            { translateX: -550, scale: 2.7, top: 360, bottom: null, captionIndex: 1, duration: 800, ease: 'linear' },
+            { translateX: -2092, scale: 2.55, top: 370, bottom: null, captionIndex: 2, duration: 800, ease: 'linear' },
+            { translateX: -880, scale: 1, top: 270, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
         ],
         [
             { translateX: -130, scale: 0.99, top: -20, bottom: null, captionIndex: -1, duration: 820, ease: 'linear' },
             { translateX: 360, scale: 1.5, top: 0, bottom: null, captionIndex: 0, duration: 820, ease: 'linear' },
-            { translateX: 10, scale: 2.4, top: 20, bottom: null, captionIndex: 1, duration: 820, ease: 'linear' },
-            { translateX: -1050, scale: 1.89, top: 80, bottom: null, captionIndex: 2, duration: 820, ease: 'linear' },
-            { translateX: -3940, scale: 5, top: -260, bottom: null, captionIndex: 3, duration: 820, ease: 'linear' },
-            { translateX: -130, scale: 0.99, top: -20, bottom: null, captionIndex: -1, duration: 820, ease: 'linear' },
+            {
+                translateX: 105,
+                scale: 2.2,
+                top: 21,
+                bottom: null,
+                captionIndex: 1,
+                duration: 820,
+                ease: 'linear',
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: -365,
+                scale: 1.8,
+                top: 80,
+                bottom: null,
+                captionIndex: 2,
+                duration: 820,
+                ease: 'linear',
+                captionOffsetFactor: -0.42,
+                captionSpeedFactor: 1.2,
+                captionHoldAtTop: 0.2,
+                captionFadeWindow: 0.08,
+                captionExtraFactor: 0,
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: -1352,
+                scale: 4,
+                top: -77,
+                bottom: null,
+                captionIndex: 3,
+                duration: 820,
+                ease: 'linear',
+                captionOffsetFactor: -0.48,
+                captionSpeedFactor: 1.2,
+                captionHoldAtTop: 0.2,
+                captionFadeWindow: 0.08,
+                captionExtraFactor: 0,
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: -10,
+                scale: 0.9,
+                top: -20,
+                bottom: null,
+                captionIndex: -1,
+                duration: 820,
+                ease: 'linear',
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
         ],
         [
             { translateX: 145, scale: 1.2, top: -80, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
@@ -36,20 +159,20 @@ document.addEventListener('DOMContentLoaded', () => {
     ]; 
     const splitConfigsLandscapeMobile = [
         [
-            { translateX: 115, scale: 1.2, top: -10, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false },
-            { translateX: 875, scale: 2.8, top: -105, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
-            { translateX: 105, scale: 2.4, top: 68, bottom: null, captionIndex: 1, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 200, scale: 1.3, top: 260, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false },
+            { translateX: 920, scale: 3, top: 15, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 105, scale: 2.6, top: 160, bottom: null, captionIndex: 1, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
             {
-                translateX: -675,
-                scale: 2.5,
-                top: 68,
+                translateX: -535,
+                scale: 2.6,
+                top: 168,
                 bottom: null,
                 captionIndex: 2,
                 duration: 760,
                 ease: 'linear',
-                captionOffsetFactor: -0.36,
-                captionSpeedFactor: 1.2,
-                captionHoldAtTop: 0.2,
+                captionOffsetFactor: 0,
+                captionSpeedFactor: 1,
+                captionHoldAtTop: 0,
                 captionFadeWindow: 0.08,
                 captionExtraFactor: 0,
                 applyWidthScale: false,
@@ -57,25 +180,110 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
             {
-                translateX: 0,
-                scale: 0.9,
-                top: 60,
+                translateX: 40,
+                scale: 1,
+                top: 120,
                 bottom: null,
                 captionIndex: -1,
                 duration: 680,
                 ease: 'linear',
                 applyWidthScale: false,
-                applyViewportScale: false,
+                applyViewportScale: false, 
                 applyHeightScale: false,
             },
         ],
         [
-            { translateX: 41, scale: 1, top: 1, bottom: null, captionIndex: -1, duration: 460, ease: 'linear', captionOffset: -110, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
-            { translateX: 281, scale: 1.5, top: -9, bottom: null, captionIndex: 0, duration: 460, ease: 'linear', captionOffset: -110, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
-            { translateX: 10, scale: 2.4, top: 20, bottom: null, captionIndex: 1, duration: 820, ease: 'linear' },
-            { translateX: -1050, scale: 1.89, top: 80, bottom: null, captionIndex: 2, duration: 820, ease: 'linear' },
-            { translateX: -3940, scale: 5, top: -260, bottom: null, captionIndex: 3, duration: 820, ease: 'linear' },
-            { translateX: -130, scale: 0.99, top: -20, bottom: null, captionIndex: -1, duration: 820, ease: 'linear' },
+            {
+                translateX: 100,
+                scale: 1.2,
+                top: -20,
+                bottom: null,
+                captionIndex: -1,
+                duration: 460,
+                ease: 'linear',
+                captionOffset: -110,
+                captionHoldAtTop: 0,
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: 281,
+                scale: 1.5,
+                top: -9,
+                bottom: null,
+                captionIndex: 0,
+                duration: 460,
+                ease: 'linear',
+                captionOffset: -110,
+                captionHoldAtTop: 0,
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: 105,
+                scale: 2.2,
+                top: 21,
+                bottom: null,
+                captionIndex: 1,
+                duration: 820,
+                ease: 'linear',
+                captionHoldAtTop: 0,
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: -365,
+                scale: 1.8,
+                top: 80,
+                bottom: null,
+                captionIndex: 2,
+                duration: 820,
+                ease: 'linear',
+                captionOffsetFactor: 0,
+                captionSpeedFactor: 1,
+                captionHoldAtTop: 0,
+                captionFadeWindow: 0.08,
+                captionExtraFactor: 0,
+                extraScroll: 0,
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: -1352,
+                scale: 4,
+                top: -77,
+                bottom: null,
+                captionIndex: 3,
+                duration: 820,
+                ease: 'linear',
+                captionOffsetFactor: 0,
+                captionSpeedFactor: 1,
+                captionHoldAtTop: 0,
+                captionFadeWindow: 0.08,
+                captionExtraFactor: 0,
+                extraScroll: 0,
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: -10,
+                scale: 0.9,
+                top: -20,
+                bottom: null,
+                captionIndex: -1,
+                duration: 820,
+                ease: 'linear',
+                captionHoldAtTop: 0,
+                extraScroll: 0,
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
         ],
     ];
     const splitConfigs = window.innerWidth <= 960 && window.innerHeight <= 620
@@ -84,7 +292,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const splitGalleries = Array.from(document.querySelectorAll('.split-gallery')).map((gallery, index) => {
         const container = gallery.querySelector('.split-image-container');
         const steps = Array.from(gallery.querySelectorAll('.split-step'));
-        const config = splitConfigs[index] || splitConfigs[splitConfigs.length - 1];
+        const rawConfig = splitConfigs[index] || splitConfigs[splitConfigs.length - 1];
+        const config = rawConfig.map((cfg) => normalizeSplitEntry(cfg));
+        setStepHeightsForGallery(steps, config, container);
         return {
             gallery,
             container,
@@ -92,7 +302,13 @@ document.addEventListener('DOMContentLoaded', () => {
             config,
             measurements: null,
         };
-    }); 
+    });
+
+    const applyStepHeights = () => {
+        splitGalleries.forEach(({ steps, config, container }) => {
+            setStepHeightsForGallery(steps, config, container);
+        });
+    };
     const scrollGalleries = Array.from(document.querySelectorAll('.scroll-gallery')).map((gallery) => {
         const images = Array.from(gallery.querySelectorAll('.image-display img'));
         const spacer = gallery.querySelector('.scroll-spacer');
@@ -324,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateSplitMeasurements = () => {
         splitGalleries.forEach((entry) => {
-            const { gallery, container, steps } = entry;
+            const { gallery, container, steps, config } = entry;
             if (!gallery || !container || steps.length === 0) {
                 entry.measurements = null;
             return;
@@ -334,7 +550,18 @@ document.addEventListener('DOMContentLoaded', () => {
         let accumulator = 0;
 
             steps.forEach((step, stepIndex) => {
-            const height = Math.max(step.offsetHeight, window.innerHeight * 0.7);
+            const cfg =
+                config[stepIndex] ||
+                config[config.length - 1] ||
+                null;
+            const datasetHeight = parseFloat(step?.dataset?.scrollHeight || '0');
+            const computedHeight = computeStepScrollHeight(cfg, container);
+            const height = Math.max(
+                datasetHeight,
+                computedHeight,
+                step.offsetHeight,
+                window.innerHeight * 0.7
+            );
             offsets.push({
                 start: accumulator,
                 end: accumulator + height,
@@ -386,30 +613,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-            const { start, total, offsets } = measurements;
+            const { start, total, offsets } = measurements; 
         if (total === 0) {
             return;
         }
 
-        const captionExtra = getCaptionExtra();
         const captionBaseBottom = getCaptionBaseBottom();
-            const captionSegments = config.filter((cfg) => (cfg.captionIndex ?? -1) >= 0).length;
-        const totalWithExtra = total + captionExtra * captionSegments;
+        const totalWithExtra = total;
         const relative = clamp(scrollY - start, 0, totalWithExtra);
 
-        let segmentIndex = 0;
+        let segmentIndex = 0; 
 
         for (let i = 0; i < offsets.length; i += 1) {
             const segment = offsets[i];
-            const extraForSegment =
-                    (config[i]?.captionIndex ?? -1) >= 0 ? captionExtra : 0;
-            const extendedEnd = segment.end + extraForSegment;
 
-            if (relative >= extendedEnd) {
+            if (relative >= segment.end) {
                 segmentIndex = Math.min(i + 1, offsets.length - 1);
                 continue;
             }
- 
+
             segmentIndex = i;
             break;
         }
@@ -417,8 +639,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const current = config[segmentIndex] || config[config.length - 1];
         const segment = offsets[Math.min(segmentIndex, offsets.length - 1)];
         let segmentProgress = 0;
-        const extraForSegment =
-                (config[segmentIndex]?.captionIndex ?? -1) >= 0 ? captionExtra : 0;
             const containerWidth =
                 container.clientWidth || container.getBoundingClientRect().width || BASE_SPLIT_WIDTH;
             const containerHeight =
@@ -427,13 +647,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const heightScale = containerHeight / BASE_SPLIT_HEIGHT;
 
         if (segment && segment.duration) {
-            const extendedDuration = segment.duration + extraForSegment;
             const relativeWithinSegment = clamp(
                 relative - segment.start,
                 0,
-                extendedDuration
+                segment.duration
             );
-            segmentProgress = extendedDuration > 0 ? relativeWithinSegment / extendedDuration : 0;
+            segmentProgress =
+                segment.duration > 0 ? relativeWithinSegment / segment.duration : 0;
         } else {
             segmentProgress = 1;
         }
@@ -533,58 +753,47 @@ document.addEventListener('DOMContentLoaded', () => {
                         0
                     );
 
-                    const startDelay = clamp(current.captionStartDelay ?? 0.0, 0, 0.3);
-                    const holdAtTop = clamp(current.captionHoldAtTop ?? 0.12, 0, 0.35);
-                    const speedFactor = Math.max(current.captionSpeedFactor ?? 1, 0.1);
-                    const fadeWindow = clamp(current.captionFadeWindow ?? 0.06, 0.03, 0.18);
                     const captionOffset = configuredCaptionOffset || defaultCaptionOffset;
 
-                    let activeProgress = 0;
+                    const clampedProgress = clamp(segmentProgress, 0, 1);
+                    const overflowProgress = Math.max(segmentProgress - 1, 0);
+                    const containerHeight =
+                        container?.clientHeight ||
+                        container?.getBoundingClientRect?.().height ||
+                        viewportHeight;
+                    const startBottom =
+                        -(captionHeight || 0) - viewportHeight * 0.1;
+                    const endBottom =
+                        (containerHeight || viewportHeight || 0) +
+                        (captionHeight || 0) * 0.2;
+                    const baseBottomValue =
+                        startBottom +
+                        (endBottom - startBottom) * clampedProgress;
 
-                    if (segmentProgress <= startDelay) {
-                        activeProgress = 0;
-                    } else if (segmentProgress >= 1 - holdAtTop) {
-                        activeProgress = 1;
-                    } else {
-                        activeProgress =
-                            (segmentProgress - startDelay) / Math.max(1 - holdAtTop - startDelay, 0.0001);
-                    }
- 
-                    const adjustedProgress = Math.pow(activeProgress, speedFactor);
+                    const overflowMultiplier =
+                        Math.max(
+                            (containerHeight || 0) + (captionHeight || 0),
+                            (viewportHeight || 0) * 2,
+                            1
+                        );
 
                     const bottomValue =
-                        captionBaseBottom +
-                        captionOffset +
-                        travelDistance * adjustedProgress;
-
-                    let opacity = 1; 
-                    if (segmentProgress < fadeWindow) {
-                        opacity = clamp(segmentProgress / fadeWindow, 0, 1);
-                    } else if (segmentProgress > 1 - fadeWindow) {
-                        const fadeProgress = (1 - segmentProgress) / fadeWindow;
-                        const easedFade = Math.pow(Math.max(Math.min(fadeProgress, 1), 0), 1.6);
-                        opacity = clamp(easedFade, 0, 1);
-                    }
+                        baseBottomValue +
+                        overflowProgress * overflowMultiplier;
 
                     captionNode.style.bottom = `${bottomValue}px`;
-                    captionNode.style.opacity = `${opacity}`;
+                    captionNode.style.opacity = '1';
+                    captionNode.style.visibility = 'visible';
                 } else {
-                    const captionOffset =
-                        configuredCaptionOffset || defaultCaptionOffset;
-                    if (
-                        parseFloat(captionNode.style.opacity || '0') <= 0.01
-                    ) {
-                        captionNode.style.bottom = `${
-                            captionBaseBottom + captionOffset
-                        }px`;
-                    }
                     captionNode.style.opacity = '0';
+                    captionNode.style.visibility = 'hidden';
                 }
             });
         }
         });
     };
 
+    applyStepHeights();
     syncScrollSpacers();
     syncPairedSpacers();
     updateSplitMeasurements();
@@ -838,6 +1047,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const handleResize = () => {
+        applyStepHeights();
         syncScrollSpacers();
         syncPairedSpacers();
         updateSplitMeasurements();
@@ -847,6 +1057,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', handleResize);
+    window.addEventListener('load', () => {
+        applyStepHeights();
+        updateSplitMeasurements();
+        updatePairedMeasurements();
+        render();
+    });
     render(); 
     
 });
