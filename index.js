@@ -1,11 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
     const BASE_SPLIT_WIDTH = 1905;
     const BASE_SPLIT_HEIGHT = 910;
-    const transitionDistance = 220;  
-    const tailPaddingFactor = 0.03; 
-    const pairedTransitionDistance = 280;
+    const pointerMedia =
+        typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+            ? window.matchMedia('(pointer: coarse)')
+            : null;
+    let transitionDistance = 220;
+    const tailPaddingFactor = 0.03;
+    let pairedTransitionDistance = 280;
+    let nonCaptionBaseFactor = 0.5;
+    let nonCaptionMinHeight = 320;
     const pairedHeadPaddingFactor = 0.11;
-    const pairedTailPaddingFactor = 0.15; 
+    const pairedTailPaddingFactor = 0.15;
+    const updateScrollSpacingSettings = () => {
+        // Use shorter distances on touch/mobile so gallery transitions require less scroll.
+        const narrowViewport = (window?.innerWidth || 0) <= 900;
+        const isCoarsePointer = pointerMedia ? pointerMedia.matches : false;
+        const useCompactSpacing = isCoarsePointer || narrowViewport;
+
+        if (useCompactSpacing) {
+            transitionDistance = 160;
+            pairedTransitionDistance = 220;
+            nonCaptionBaseFactor = 0.35;
+            nonCaptionMinHeight = 200;
+        } else {
+            transitionDistance = 220;
+            pairedTransitionDistance = 280;
+            nonCaptionBaseFactor = 0.5;
+            nonCaptionMinHeight = 320;
+        }
+    };
+
+    updateScrollSpacingSettings();
     const pairedInitialOffsetFactor = 0.08;
     const pairedFadeDuration = 240;
     const leftTransitionHolds = [0, 0];
@@ -38,9 +64,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const captionIndex = cfg.captionIndex ?? -1;
         if (captionIndex < 0) {
             const viewportHeight = window?.innerHeight || BASE_SPLIT_HEIGHT;
+            const baseFactor =
+                typeof cfg.nonCaptionFactor === 'number'
+                    ? cfg.nonCaptionFactor
+                    : nonCaptionBaseFactor;
+            const minHeight =
+                typeof cfg.minScroll === 'number'
+                    ? Math.max(cfg.minScroll, 120)
+                    : nonCaptionMinHeight;
             const nonCaptionBase = Math.max(
-                viewportHeight * 0.6,
-                STEP_BASE_HEIGHT_FLOOR * 0.45
+                viewportHeight * baseFactor,
+                minHeight
             );
             const explicitExtra = Math.max(cfg.extraScroll ?? 0, 0);
             return nonCaptionBase + explicitExtra;
@@ -89,12 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
             { translateX: -880, scale: 1, top: 270, bottom: null, captionIndex: -1, duration: 800, ease: 'linear' },
         ],
         [
-            { translateX: -130, scale: 0.99, top: -20, bottom: null, captionIndex: -1, duration: 820, ease: 'linear' },
-            { translateX: 360, scale: 1.5, top: 0, bottom: null, captionIndex: 0, duration: 820, ease: 'linear' },
             {
-                translateX: 105,
-                scale: 2.2,
-                top: 21,
+                translateX: -757,
+                scale: 1,
+                top: 190,
                 bottom: null,
                 captionIndex: 1,
                 duration: 820,
@@ -103,10 +135,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyViewportScale: false,
                 applyHeightScale: false,
             },
+            { translateX: -260, scale: 1.6, top: 250, bottom: null, captionIndex: -1, duration: 820, ease: 'linear' },
+            { translateX: -717, scale: 2.5, top: 220, bottom: null, captionIndex: 0, duration: 820, ease: 'linear' },
             {
-                translateX: -365,
-                scale: 1.8,
-                top: 80,
+                translateX: -1705,
+                scale: 2.1,
+                top: 350,
                 bottom: null,
                 captionIndex: 2,
                 duration: 820,
@@ -121,9 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
             {
-                translateX: -1352,
-                scale: 4,
-                top: -77,
+                translateX: -4522,
+                scale: 5.5,
+                top: -27,
                 bottom: null,
                 captionIndex: 3,
                 duration: 820,
@@ -138,9 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
             {
-                translateX: -10,
-                scale: 0.9,
-                top: -20,
+                translateX: -850,
+                scale: 1,
+                top: 200,
                 bottom: null,
                 captionIndex: -1,
                 duration: 820,
@@ -150,11 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
         ],
-        [
-            { translateX: 145, scale: 1.2, top: -80, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
-            { translateX: 520, scale: 1.55, top: 0, bottom: null, captionIndex: 0, duration: 520, ease: 'linear' },
-            { translateX: -580, scale: 1.98, top: -60, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
-            { translateX: -160, scale: 0.95, top: -70, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
+        [ 
+            { translateX: -350, scale: 1.5, top: 109, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
+            { translateX: 355, scale: 2.2, top: 260, bottom: null, captionIndex: 0, duration: 520, ease: 'linear' },
+            { translateX: -1544, scale: 2.4, top: 230, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
+            { translateX: -840, scale: 0.95, top: 200, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
         ],
     ]; 
     const splitConfigsLandscapeMobile = [
@@ -194,9 +228,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         [
             {
-                translateX: 100,
-                scale: 1.2,
-                top: -20,
+                translateX: 90,
+                scale: 1.08,
+                top: 60,
                 bottom: null,
                 captionIndex: -1,
                 duration: 460,
@@ -208,9 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
             {
-                translateX: 281,
-                scale: 1.5,
-                top: -9,
+                translateX: 310,
+                scale: 1.6,
+                top: 90,
                 bottom: null,
                 captionIndex: 0,
                 duration: 460,
@@ -222,9 +256,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
             {
-                translateX: 105,
-                scale: 2.2,
-                top: 21,
+                translateX: 115,
+                scale: 2.7,
+                top: 100,
                 bottom: null,
                 captionIndex: 1,
                 duration: 820,
@@ -234,9 +268,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyViewportScale: false,
                 applyHeightScale: false,
             },
-            {
-                translateX: -365,
-                scale: 1.8,
+            { 
+                translateX: -355,
+                scale: 2.1,
                 top: 80,
                 bottom: null,
                 captionIndex: 2,
@@ -253,9 +287,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
             {
-                translateX: -1352,
-                scale: 4,
-                top: -77,
+                translateX: -1450,
+                scale: 5,
+                top: -17,
                 bottom: null,
                 captionIndex: 3,
                 duration: 820,
@@ -271,9 +305,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
             {
-                translateX: -10,
+                translateX: 40,
                 scale: 0.9,
-                top: -20,
+                top: 90,
                 bottom: null,
                 captionIndex: -1,
                 duration: 820,
@@ -284,6 +318,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyViewportScale: false,
                 applyHeightScale: false,
             },
+        ],
+        [ 
+            { translateX: 650, scale: 2, top: 200, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
+            { translateX: 1500, scale: 3, top: 300, bottom: null, captionIndex: 0, duration: 520, ease: 'linear' },
+            { translateX: -440, scale: 2.6, top: 200, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
+            { translateX: 100, scale: 1.2, top: 200, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
         ],
     ];
     const splitConfigs = window.innerWidth <= 960 && window.innerHeight <= 620
@@ -1047,6 +1087,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const handleResize = () => {
+        updateScrollSpacingSettings();
         applyStepHeights();
         syncScrollSpacers();
         syncPairedSpacers();
@@ -1058,6 +1099,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', handleResize);
     window.addEventListener('load', () => {
+        updateScrollSpacingSettings();
         applyStepHeights();
         updateSplitMeasurements();
         updatePairedMeasurements();

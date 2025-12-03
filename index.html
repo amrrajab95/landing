@@ -26,6 +26,7 @@
         }
 
         body {
+            background-color: #233d94;
             margin: 0;
             padding: 0;
             color: #fff;
@@ -52,7 +53,7 @@
             position: absolute; 
             inset: 0;
             width: 100%;
-            height: 100%;
+            height: 100%; 
             object-fit: cover;
             opacity: 0;
             will-change: opacity;
@@ -222,13 +223,21 @@
             will-change: bottom, opacity;
             text-align: center;
         }
+        .sec-4 .split-caption{
+            width: min(800px, 50vw);
+            left: 450px;
+        }
+        .sec-4 .split-caption.s-2{
+            left: 850px;
+        }
+    
         .split-gallery.sec_2 .split-caption {
             left: initial;
             right: 15px;
         }
         .split-gallery.sec_6 .split-caption {
             left: initial;
-            right: 250px;
+            right: 430px;
         }
         .split-caption.is-active {
             opacity: 1;
@@ -365,6 +374,9 @@
             b {
                 font-size: 15px !important;
             }
+            .split-gallery.sec-4 .split-caption.s-2 {
+                left: 680px;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -388,14 +400,22 @@
             .split-caption-layer {
                 padding: 0 32px 48px;
             }
-            .split-gallery.sec_2 .split-caption,
+            .split-gallery.sec_2 .split-caption, 
             .split-gallery.sec_6 .split-caption {
                 right: initial;
+                left: 450px !important;
             }
-            .split-gallery.sec_2 .split-caption,
-            .split-gallery.sec_6 .split-caption {
-                left: 73%;
+            .split-gallery.sec_2 .split-caption{
+                left: 53%;
                 transform: translateX(-50%);
+            }
+            .split-gallery.sec_2 .split-caption{
+                width: 270px;
+                left: 67%;
+            }
+            .split-gallery.sec_2 .split-caption.s-2-1{
+                width: 400px;
+                left: 67%;
             }
             .split-gallery.sec_6 .split-caption img {
                 width: 100%;
@@ -467,7 +487,7 @@
 </head>
 <body> 
     <main class="scroll-gallery">
-        <div class="image-display" aria-live="polite">
+        <div class="image-display" aria-live="polite" style="top:0">
             <img src="assets/images/sec_1_1.png" alt="مشهد طبيعي من فلسطين مع مبادرة تنظيف" data-image="sec_1_1" loading="lazy" />
             <img src="assets/images/sec_1_2.png" alt="مجموعة شبابية تزرع الأشجار في فلسطين" data-image="sec_1_2" loading="lazy" />
             <img src="assets/images/sec_1_3.png" alt="طاقة شمسية تغذي قرية فلسطينية" data-image="sec_1_3" loading="lazy" />
@@ -478,7 +498,7 @@
         <div class="split-image-container">
             <img src="assets/images/sec_2.png" alt="مشاهد بيئية متنوعة في فلسطين" loading="lazy" class="split-pan-image" />
             <div class="split-caption-layer" aria-hidden="true">
-                <div class="split-caption" data-caption="0">
+                <div class="split-caption s-2-1" data-caption="0">
                     <b style="color: rgb(0 170 101)">البيئة</b>
                      هي كل ما يحيط بنا من هواء وماء وتربة وكائنات حية ومنشآت، وهي .الأساس الذي تقوم عليه حياتنا اليومية
 
@@ -518,7 +538,7 @@
         </div>
         <div class="paired-scroll-spacer" aria-hidden="true"></div>
     </section>
-    <section class="split-gallery">
+    <section class="split-gallery sec-4">
         <div class="split-image-container">
             <img src="assets/images/sec_4.png" alt="مشاريع بيئية مبتكرة في فلسطين" loading="lazy" class="split-pan-image sec_4" />
             <div class="split-caption-layer" aria-hidden="true">
@@ -543,7 +563,7 @@
 
                     <img width="780" src="assets/images/sec_4_text_1.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
                 </div>
-                <div class="split-caption" data-caption="3">
+                <div class="split-caption s-2" data-caption="3">
                     <b style="color: #FBB516;font-size: 24px;">
                         ماذا تفعل إذا شاهدت مخالفة بيئية؟
                     </b>
@@ -564,7 +584,7 @@
             <div class="split-step" data-segment="reset"></div>
         </div> 
     </section> 
-    <main class="scroll-gallery scroll-gallery--contain" style="background-image: url('assets/images/sec_2_bg.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
+    <main class="scroll-gallery scroll-gallery--contain sec-5" style="background-image: url('assets/images/sec_2_bg.png'); background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;">
         <div class="image-display" aria-live="polite">
             <img src="assets/images/sec_5_1.png" alt="مشروع تنظيف مستمر للشواطئ الفلسطينية" data-image="sec_5_1" loading="lazy" />
             <img src="assets/images/sec_5_2.png" alt="ورش توعية حول إعادة التدوير في المدارس الفلسطينية" data-image="sec_5_2" loading="lazy" />
