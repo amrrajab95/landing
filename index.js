@@ -431,6 +431,29 @@ document.addEventListener('DOMContentLoaded', () => {
             setStepHeightsForGallery(steps, config, container);
         });
     };
+    const orientationOverlay = document.querySelector('.orientation-overlay') || null;
+    const pageContent = document.querySelector('body') || null;
+    const mainSections = document.querySelectorAll('main, section');
+    const updateOrientationState = () => {
+        const isPortrait = (window.matchMedia('(orientation: portrait)').matches);
+
+        if (pageContent) {
+            pageContent.classList.toggle('is-portrait', isPortrait);
+        }
+
+        mainSections.forEach((node) => {
+            node.classList.toggle('orientation-hidden', isPortrait);
+        });
+
+        if (orientationOverlay) {
+            orientationOverlay.setAttribute(
+                'aria-hidden',
+                isPortrait ? 'false' : 'true'
+            );
+        }
+    };
+
+    updateOrientationState();
     const scrollGalleries = Array.from(document.querySelectorAll('.scroll-gallery')).map((gallery) => {
         const images = Array.from(gallery.querySelectorAll('.image-display img'));
         const spacer = gallery.querySelector('.scroll-spacer');
@@ -1239,16 +1262,24 @@ document.addEventListener('DOMContentLoaded', () => {
         syncPairedSpacers();
         updateSplitMeasurements();
         updatePairedMeasurements();
+        updateOrientationState();
         render();
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', () => {
+        window.setTimeout(() => {
+            handleResize();
+            updateOrientationState();
+        }, 120);
+    });
     window.addEventListener('load', () => {
         updateScrollSpacingSettings();
         applyStepHeights();
         updateSplitMeasurements();
         updatePairedMeasurements();
+        updateOrientationState();
         render();
     });
     render(); 

@@ -34,6 +34,35 @@
             overflow-x: hidden;
             font-family: 'Noto Kufi Arabic', 'Tajawal', 'Cairo', sans-serif;
             width: 100%;
+            position: relative;
+        }
+
+        .orientation-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(9, 24, 68, 0.92);
+            color: #fff;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 32px;
+            z-index: 9999;
+        }
+
+        .orientation-overlay__content {
+            max-width: 360px;
+            border: 2px solid rgba(255, 255, 255, 0.65);
+            border-radius: 18px;
+            padding: 24px 28px;
+            background: rgba(35, 61, 148, 0.85);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+            font-size: clamp(18px, 4vw, 24px);
+            line-height: 1.6;
+        }
+
+        .orientation-overlay__content p {
+            margin: 0;
         }
 
         main.scroll-gallery {
@@ -350,6 +379,22 @@
             .paired-column[data-stack="right"] {
                 order: initial;
             }
+
+            body.is-portrait {
+                overflow: hidden;
+            }
+
+            body.is-portrait .orientation-overlay {
+                display: flex;
+            }
+
+            body.is-portrait .orientation-overlay__content {
+                animation: popIn 260ms ease-out;
+            }
+
+            body.is-portrait .orientation-hidden {
+                visibility: hidden;
+            }
         }
         @media (max-width: 960px) and (orientation: landscape) {
             .paired-display {
@@ -509,9 +554,29 @@
             }
         
         }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.85);
+                opacity: 0;
+            }
+            60% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
-<body> 
+ <body> 
+    <div class="orientation-overlay" role="dialog" aria-live="assertive">
+        <div class="orientation-overlay__content">
+            <p>لأفضل تجربة، يرجى تدوير جهازك إلى الوضع الأفقي.</p>
+        </div>
+    </div>
     <main class="scroll-gallery">
         <div class="image-display" aria-live="polite" style="top:0">
             <img src="assets/images/sec_1_1.png" alt="مشهد طبيعي من فلسطين مع مبادرة تنظيف" data-image="sec_1_1" loading="lazy" />
