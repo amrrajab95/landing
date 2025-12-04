@@ -510,6 +510,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const sec7Gallery = document.querySelector('.scroll-gallery.sec-7') || null;
     const sec7Footer = sec7Gallery?.querySelector('.section-bottom') || null;
+    const iosSafeAreaBottom =
+        typeof window !== 'undefined'
+            ? parseInt(
+                  getComputedStyle(document.documentElement).getPropertyValue(
+                      'env(safe-area-inset-bottom)'
+                  ) || '0',
+                  10
+              ) || 0
+            : 0;
 
 
     const hasSplitGalleries = splitGalleries.some(
@@ -647,7 +656,10 @@ document.addEventListener('DOMContentLoaded', () => {
             transitionDistance * tailPaddingFactor
         );
         const isLastGallery = galleryIndex === scrollGalleries.length - 1;
-        const lastGalleryPadding = Math.max(window.innerHeight || 0, tailBase);
+        const lastGalleryPadding = Math.max(
+            (window.innerHeight || 0) + iosSafeAreaBottom,
+            tailBase + iosSafeAreaBottom
+        );
         const tailPadding = isLastGallery ? lastGalleryPadding : tailBase;
             spacer.style.height = `${totalScroll + tailPadding}px`;
         });
