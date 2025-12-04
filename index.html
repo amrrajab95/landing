@@ -33,11 +33,13 @@
             scroll-behavior: smooth;
             overflow-x: hidden;
             font-family: 'Noto Kufi Arabic', 'Tajawal', 'Cairo', sans-serif;
+            width: 100%;
         }
 
         main.scroll-gallery {
             position: relative;
-            width: 100vw;
+            width: 100%;
+            max-width: 100%;
             margin: 0;
             padding: 0;
         }
@@ -45,7 +47,8 @@
         .image-display {
             position: sticky;
             top: 15px;
-            width: 100vw;
+            width: 100%;
+            max-width: 100%;
             height: 100vh;
             overflow: hidden;
         }
@@ -151,7 +154,8 @@
 
         .split-gallery {
             position: relative;
-            width: 100vw;
+            width: 100%;
+            max-width: 100%;
             margin: 0;
             padding: 0;
             background-image: url("assets/images/sec_2_bg.png");
@@ -174,7 +178,8 @@
         .split-image-container {
             position: sticky;
             top: 0;
-            width: 100vw;
+            width: 100%;
+            max-width: 100%;
             height: 100vh;
             overflow: hidden;
             background-color: transparent;
@@ -267,7 +272,8 @@
  
         .paired-gallery {
             position: relative; 
-            width: 100vw;
+            width: 100%;
+            max-width: 100%;
             margin: 0;
             padding: 0;
             background-image: url("assets/images/sec_2_bg.png");
@@ -280,7 +286,8 @@
         .paired-display {
             position: sticky;
             top: 0;
-            width: 100vw;
+            width: 100%;
+            max-width: 100%;
             height: 100vh;
             overflow: hidden;
             display: grid;
@@ -353,11 +360,14 @@
             .paired-column {
                 height: clamp(260px, 70vh, 480px);
             }
-            .split-gallery {
-                background-size: cover;
-                background-position: center top;
-                background-repeat: no-repeat;
-                background-attachment: fixed;
+            .scroll-gallery,
+            .split-gallery,
+            .paired-gallery,
+            .split-image-container,
+            .paired-display {
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
             }
             body,
             .split-caption,
