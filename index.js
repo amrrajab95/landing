@@ -39,6 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const getCaptionBaseBottom = () => -Math.max((window?.innerHeight || 800) * 0.6, 320);
     const getCaptionExtra = () => Math.max((window?.innerHeight || 0) * 1.25, 900);
 
+    const iosUserAgent =
+        window?.navigator?.userAgent || window?.navigator?.vendor || '';
+    const isIOSDevice =
+        /iPad|iPhone|iPod/i.test(iosUserAgent) ||
+        (iosUserAgent.includes('Mac') && window?.navigator?.maxTouchPoints > 1);
+    if (isIOSDevice) {
+        document.body.classList.add('is-ios');
+    }
+
     const STEP_BASE_HEIGHT_FLOOR = 800;
     const getBaseStepHeight = () => {
         const viewportHeight = window?.innerHeight || BASE_SPLIT_HEIGHT;
