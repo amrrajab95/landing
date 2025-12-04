@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
         useCompactSpacing = isCoarsePointer || narrowViewport;
 
         if (useCompactSpacing) {
-            transitionDistance = 160;
-            pairedTransitionDistance = 220;
-            nonCaptionBaseFactor = 0.28;
-            nonCaptionMinHeight = 200;
+            transitionDistance = 130;
+            pairedTransitionDistance = 200;
+            nonCaptionBaseFactor = 0.24;
+            nonCaptionMinHeight = 180;
         } else {
             transitionDistance = 220;
             pairedTransitionDistance = 280;
@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const getBaseStepHeight = () => {
         const viewportHeight = window?.innerHeight || BASE_SPLIT_HEIGHT;
         if (useCompactSpacing) {
-            const compactFloor = STEP_BASE_HEIGHT_FLOOR * 0.75;
-            return Math.max(viewportHeight * 1.45, compactFloor);
+            const compactFloor = STEP_BASE_HEIGHT_FLOOR * 0.6;
+            return Math.max(viewportHeight * 1.12, compactFloor);
         }
         return Math.max(viewportHeight * 2, STEP_BASE_HEIGHT_FLOOR);
     };
@@ -317,8 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
-                extraScroll: 140,
-                minScroll: 420,
+                extraScroll: 100,
+                minScroll: 360,
             },
             {
                 translateX: 310,
@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
-                extraScroll: 220,
+                extraScroll: 160,
             },
             {
                 translateX: 115,
@@ -347,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
-                extraScroll: 260,
+                extraScroll: 200,
             },
             { 
                 translateX: -355,
@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 captionHoldAtTop: 0,
                 captionFadeWindow: 0.08,
                 captionExtraFactor: 0,
-                extraScroll: 280,
+                extraScroll: 220,
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 captionHoldAtTop: 0,
                 captionFadeWindow: 0.08,
                 captionExtraFactor: 0,
-                extraScroll: 300,
+                extraScroll: 240,
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
@@ -394,8 +394,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 duration: 820,
                 ease: 'linear',
                 captionHoldAtTop: 0,
-                extraScroll: 160,
-                minScroll: 420,
+                extraScroll: 120,
+                minScroll: 360,
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
@@ -956,9 +956,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         baseBottomValue +
                         overflowProgress * overflowMultiplier;
 
+                    const fadeInStart = 0.06;
+                    const fadeInEnd = 0.24;
+                    const fadeWindow = Math.max(fadeInEnd - fadeInStart, 0.0001);
+                    let opacity = segmentProgress >= 1
+                        ? 1
+                        : clamp((segmentProgress - fadeInStart) / fadeWindow, 0, 1);
+
+                    if (overflowProgress > 0) {
+                        opacity = 1;
+                    }
+
                     captionNode.style.bottom = `${bottomValue}px`;
-                    captionNode.style.opacity = '1';
-                    captionNode.style.visibility = 'visible';
+                    captionNode.style.opacity = opacity.toFixed(3);
+                    captionNode.style.visibility = opacity > 0.001 ? 'visible' : 'hidden';
                 } else {
                     captionNode.style.opacity = '0';
                     captionNode.style.visibility = 'hidden';
