@@ -10,18 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let pairedTransitionDistance = 280;
     let nonCaptionBaseFactor = 0.5;
     let nonCaptionMinHeight = 320;
+    let useCompactSpacing = false;
     const pairedHeadPaddingFactor = 0.11;
     const pairedTailPaddingFactor = 0.15;
     const updateScrollSpacingSettings = () => {
         // Use shorter distances on touch/mobile so gallery transitions require less scroll.
         const narrowViewport = (window?.innerWidth || 0) <= 900;
         const isCoarsePointer = pointerMedia ? pointerMedia.matches : false;
-        const useCompactSpacing = isCoarsePointer || narrowViewport;
+        useCompactSpacing = isCoarsePointer || narrowViewport;
 
         if (useCompactSpacing) {
             transitionDistance = 160;
             pairedTransitionDistance = 220;
-            nonCaptionBaseFactor = 0.35;
+            nonCaptionBaseFactor = 0.28;
             nonCaptionMinHeight = 200;
         } else {
             transitionDistance = 220;
@@ -39,8 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const getCaptionExtra = () => Math.max((window?.innerHeight || 0) * 1.25, 900);
 
     const STEP_BASE_HEIGHT_FLOOR = 800;
-    const getBaseStepHeight = () =>
-        Math.max((window?.innerHeight || BASE_SPLIT_HEIGHT) * 2, STEP_BASE_HEIGHT_FLOOR);
+    const getBaseStepHeight = () => {
+        const viewportHeight = window?.innerHeight || BASE_SPLIT_HEIGHT;
+        if (useCompactSpacing) {
+            const compactFloor = STEP_BASE_HEIGHT_FLOOR * 0.75;
+            return Math.max(viewportHeight * 1.45, compactFloor);
+        }
+        return Math.max(viewportHeight * 2, STEP_BASE_HEIGHT_FLOOR);
+    };
 
     const getCaptionNodeHeight = (container, captionIndex) => {
         if (!container || captionIndex < 0) {
@@ -310,8 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
-                extraScroll: 180,
-                minScroll: 480,
+                extraScroll: 140,
+                minScroll: 420,
             },
             {
                 translateX: 310,
@@ -326,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
-                extraScroll: 260,
+                extraScroll: 220,
             },
             {
                 translateX: 115,
@@ -340,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
-                extraScroll: 320,
+                extraScroll: 260,
             },
             { 
                 translateX: -355,
@@ -355,7 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 captionHoldAtTop: 0,
                 captionFadeWindow: 0.08,
                 captionExtraFactor: 0,
-                extraScroll: 340,
+                extraScroll: 280,
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
@@ -373,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 captionHoldAtTop: 0,
                 captionFadeWindow: 0.08,
                 captionExtraFactor: 0,
-                extraScroll: 340,
+                extraScroll: 300,
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
@@ -387,8 +394,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 duration: 820,
                 ease: 'linear',
                 captionHoldAtTop: 0,
-                extraScroll: 220,
-                minScroll: 500,
+                extraScroll: 160,
+                minScroll: 420,
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
