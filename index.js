@@ -107,11 +107,79 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!entry || typeof entry !== 'object') {
             return entry;
         }
+
         const normalized = { ...entry };
-        normalized.captionSpeedFactor = 1;
-        normalized.captionHoldAtTop = 0;
-        normalized.captionStartDelay = 0;
+
+        normalized.captionSpeedFactor = normalized.captionSpeedFactor ?? 1;
+        normalized.captionHoldAtTop = normalized.captionHoldAtTop ?? 0;
+        normalized.captionStartDelay = normalized.captionStartDelay ?? 0;
         normalized.extraScroll = Math.max(normalized.extraScroll ?? 0, 0);
+
+        const widthBase =
+            typeof normalized.widthBase === 'number' && normalized.widthBase > 0
+                ? normalized.widthBase
+                : BASE_SPLIT_WIDTH;
+        const heightBase =
+            typeof normalized.heightBase === 'number' &&
+            normalized.heightBase > 0
+                ? normalized.heightBase
+                : BASE_SPLIT_HEIGHT;
+
+        normalized.widthBase = widthBase;
+        normalized.heightBase = heightBase;
+
+        if (typeof normalized.translateX === 'number') {
+            normalized.translateXBase = normalized.translateX;
+        }
+        if (typeof normalized.top === 'number') {
+            normalized.topBase = normalized.top;
+        }
+        if (typeof normalized.bottom === 'number') {
+            normalized.bottomBase = normalized.bottom;
+        }
+
+        if (
+            typeof normalized.captionOffset === 'number' &&
+            normalized.captionOffsetFactor === undefined
+        ) {
+            normalized.captionOffsetFactor =
+                normalized.captionOffset / heightBase;
+            delete normalized.captionOffset;
+        }
+
+        if (
+            typeof normalized.widthStrategy !== 'string' &&
+            normalized.widthStrategy !== 'fixed'
+        ) {
+            normalized.widthStrategy =
+                normalized.applyWidthScale === false ? 'clamp' : 'full';
+        }
+
+        if (
+            typeof normalized.heightStrategy !== 'string' &&
+            normalized.heightStrategy !== 'fixed'
+        ) {
+            normalized.heightStrategy =
+                normalized.applyHeightScale === false ? 'clamp' : 'full';
+        }
+
+        if (!Array.isArray(normalized.widthClamp)) {
+            normalized.widthClamp =
+                normalized.widthStrategy === 'clamp'
+                    ? [0.85, 1.2]
+                    : [0.7, 1.55];
+        }
+
+        if (!Array.isArray(normalized.heightClamp)) {
+            normalized.heightClamp =
+                normalized.heightStrategy === 'clamp'
+                    ? [0.85, 1.25]
+                    : [0.7, 1.45];
+        }
+
+        delete normalized.applyWidthScale;
+        delete normalized.applyHeightScale;
+
         return normalized;
     };
     const splitConfigsDesktop = [
@@ -193,9 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ]; 
     const splitConfigsLandscapeMobile = [
         [
-            { translateX: 200, scale: 1.3, top: 260, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false },
-            { translateX: 920, scale: 3, top: 15, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
-            { translateX: 105, scale: 2.6, top: 160, bottom: null, captionIndex: 1, duration: 720, ease: 'linear', captionOffset: -120, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 200, scale: 1.3, top: 260, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false },
+            { translateX: 920, scale: 3, top: 15, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 105, scale: 2.6, top: 160, bottom: null, captionIndex: 1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
             {
                 translateX: -535,
                 scale: 2.6,
@@ -235,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 captionIndex: -1,
                 duration: 460,
                 ease: 'linear',
-                captionOffset: -110,
+                captionOffsetFactor: -0.121,
                 captionHoldAtTop: 0,
                 applyWidthScale: false,
                 applyViewportScale: false,
@@ -249,7 +317,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 captionIndex: 0,
                 duration: 460,
                 ease: 'linear',
-                captionOffset: -110,
+                captionOffsetFactor: -0.121,
                 captionHoldAtTop: 0,
                 applyWidthScale: false,
                 applyViewportScale: false,
@@ -287,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
             {
-                translateX: -1450,
+                translateX: -1800,
                 scale: 5,
                 top: -17,
                 bottom: null,
@@ -680,11 +748,52 @@ document.addEventListener('DOMContentLoaded', () => {
         const segment = offsets[Math.min(segmentIndex, offsets.length - 1)];
         let segmentProgress = 0;
             const containerWidth =
-                container.clientWidth || container.getBoundingClientRect().width || BASE_SPLIT_WIDTH;
+                container.clientWidth ||
+                container.getBoundingClientRect().width ||
+                BASE_SPLIT_WIDTH;
             const containerHeight =
-                container.clientHeight || container.getBoundingClientRect().height || BASE_SPLIT_HEIGHT;
-            const widthScale = containerWidth / BASE_SPLIT_WIDTH;
-            const heightScale = containerHeight / BASE_SPLIT_HEIGHT;
+                container.clientHeight ||
+                container.getBoundingClientRect().height ||
+                BASE_SPLIT_HEIGHT;
+
+            const widthBase = current.widthBase || BASE_SPLIT_WIDTH;
+            const heightBase = current.heightBase || BASE_SPLIT_HEIGHT;
+            const widthRatioRaw =
+                widthBase > 0 ? containerWidth / widthBase : 1;
+            const heightRatioRaw =
+                heightBase > 0 ? containerHeight / heightBase : 1;
+
+            const [minWidthClamp, maxWidthClamp] = Array.isArray(
+                current.widthClamp
+            )
+                ? current.widthClamp
+                : [0.7, 1.55];
+            const [minHeightClamp, maxHeightClamp] = Array.isArray(
+                current.heightClamp
+            )
+                ? current.heightClamp
+                : [0.7, 1.45];
+
+            const widthStrategy = current.widthStrategy || 'full';
+            const heightStrategy = current.heightStrategy || 'full';
+
+            const widthRatio =
+                widthStrategy === 'fixed'
+                    ? 1
+                    : clamp(
+                          widthRatioRaw,
+                          minWidthClamp ?? 0.7,
+                          maxWidthClamp ?? 1.55
+                      );
+
+            const heightRatio =
+                heightStrategy === 'fixed'
+                    ? 1
+                    : clamp(
+                          heightRatioRaw,
+                          minHeightClamp ?? 0.7,
+                          maxHeightClamp ?? 1.45
+                      );
 
         if (segment && segment.duration) {
             const relativeWithinSegment = clamp(
@@ -699,25 +808,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let scale = current.scale ?? 1;
-        let translateX = current.translateX ?? 0;
-        let topOffset = current.top ?? 0;
-        let bottomOffset = current.bottom;
-        const shouldScaleTranslateX =
-            typeof current.applyWidthScale === 'boolean'
-                ? current.applyWidthScale
-                : true;
-        if (typeof translateX === 'number' && shouldScaleTranslateX) {
-            translateX *= widthScale;
+        let translateX;
+        if (typeof current.translateXBase === 'number') {
+            translateX = current.translateXBase * widthRatio;
+        } else if (typeof current.translateX === 'number') {
+            translateX = current.translateX * widthRatio;
+        } else if (typeof current.translateX === 'string') {
+            translateX = current.translateX;
+        } else {
+            translateX = 0;
         }
-        const shouldScaleHeightOffsets =
-            typeof current.applyHeightScale === 'boolean'
-                ? current.applyHeightScale
-                : true;
-        if (typeof topOffset === 'number' && shouldScaleHeightOffsets) {
-            topOffset *= heightScale;
+
+        let topOffset;
+        if (typeof current.topBase === 'number') {
+            topOffset = current.topBase * heightRatio;
+        } else if (typeof current.top === 'number') {
+            topOffset = current.top * heightRatio;
+        } else if (typeof current.top === 'string') {
+            topOffset = current.top;
+        } else {
+            topOffset = 0;
         }
-        if (typeof bottomOffset === 'number' && shouldScaleHeightOffsets) {
-            bottomOffset *= heightScale;
+
+        let bottomOffset;
+        if (typeof current.bottomBase === 'number') {
+            bottomOffset = current.bottomBase * heightRatio;
+        } else if (typeof current.bottom === 'number') {
+            bottomOffset = current.bottom * heightRatio;
+        } else if (typeof current.bottom === 'string') {
+            bottomOffset = current.bottom;
+        } else {
+            bottomOffset = null;
         }
         const shouldApplyViewportScale =
             typeof current.applyViewportScale === 'boolean'
