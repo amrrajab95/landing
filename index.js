@@ -357,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
             {
-                translateX: -1800,
+                translateX: -1540,
                 scale: 5,
                 top: -17,
                 bottom: null,
