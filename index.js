@@ -147,30 +147,32 @@ document.addEventListener('DOMContentLoaded', () => {
             delete normalized.captionOffset;
         }
 
-        if (
-            typeof normalized.widthStrategy !== 'string' &&
-            normalized.widthStrategy !== 'fixed'
-        ) {
-            normalized.widthStrategy =
-                normalized.applyWidthScale === false ? 'clamp' : 'full';
+        if (normalized.applyWidthScale === false) {
+            normalized.widthStrategy = 'fixed';
+        } else if (typeof normalized.widthStrategy !== 'string') {
+            normalized.widthStrategy = 'full';
+        }
+
+        if (normalized.applyHeightScale === false) {
+            normalized.heightStrategy = 'fixed';
+        } else if (typeof normalized.heightStrategy !== 'string') {
+            normalized.heightStrategy = 'full';
         }
 
         if (
-            typeof normalized.heightStrategy !== 'string' &&
-            normalized.heightStrategy !== 'fixed'
+            normalized.widthStrategy !== 'fixed' &&
+            !Array.isArray(normalized.widthClamp)
         ) {
-            normalized.heightStrategy =
-                normalized.applyHeightScale === false ? 'clamp' : 'full';
-        }
-
-        if (!Array.isArray(normalized.widthClamp)) {
             normalized.widthClamp =
                 normalized.widthStrategy === 'clamp'
                     ? [0.85, 1.2]
                     : [0.7, 1.55];
         }
 
-        if (!Array.isArray(normalized.heightClamp)) {
+        if (
+            normalized.heightStrategy !== 'fixed' &&
+            !Array.isArray(normalized.heightClamp)
+        ) {
             normalized.heightClamp =
                 normalized.heightStrategy === 'clamp'
                     ? [0.85, 1.25]
