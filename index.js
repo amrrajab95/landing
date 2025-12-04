@@ -388,9 +388,9 @@ document.addEventListener('DOMContentLoaded', () => {
             },
         ],
         [ 
-            { translateX: 650, scale: 2, top: 200, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
-            { translateX: 1500, scale: 3, top: 300, bottom: null, captionIndex: 0, duration: 520, ease: 'linear' },
-            { translateX: -440, scale: 2.6, top: 200, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
+            { translateX: 450, scale: 2, top: 150, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
+            { translateX: 1000, scale: 2.5, top: 200, bottom: null, captionIndex: 0, duration: 520, ease: 'linear' },
+            { translateX: -300, scale: 2.6, top: 150, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
             { translateX: 100, scale: 1.2, top: 200, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
         ],
     ];
