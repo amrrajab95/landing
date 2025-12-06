@@ -286,13 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ]; 
     const splitConfigsLandscapeMobile = [
         [
-            { translateX: 200, scale: 1.3, top: 260, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false },
-            { translateX: 920, scale: 3, top: 15, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
-            { translateX: 105, scale: 2.6, top: 160, bottom: null, captionIndex: 1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 200, scale: 1.3, top: 120, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false },
+            { translateX: 920, scale: 3, top: -25, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 105, scale: 2.6, top: 140, bottom: null, captionIndex: 1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
             {
                 translateX: -535,
                 scale: 2.6,
-                top: 168,
+                top: 140,
                 bottom: null,
                 captionIndex: 2,
                 duration: 760,
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 translateX: 40,
                 scale: 1,
-                top: 120,
+                top: 100,
                 bottom: null,
                 captionIndex: -1,
                 duration: 680,
@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 translateX: 90,
                 scale: 1.08,
-                top: 60,
+                top: 40,
                 bottom: null,
                 captionIndex: -1,
                 duration: 460,
@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 translateX: 310,
                 scale: 1.6,
-                top: 90,
+                top: 50,
                 bottom: null,
                 captionIndex: 0,
                 duration: 460,
@@ -418,10 +418,10 @@ document.addEventListener('DOMContentLoaded', () => {
             },
         ],
         [ 
-            { translateX: 450, scale: 2, top: 150, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
-            { translateX: 1000, scale: 2.5, top: 200, bottom: null, captionIndex: 0, duration: 520, ease: 'linear' },
-            { translateX: -300, scale: 2.6, top: 150, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
-            { translateX: 100, scale: 1.2, top: 200, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
+            { translateX: 450, scale: 2, top: 130, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
+            { translateX: 1000, scale: 2.5, top: 180, bottom: null, captionIndex: 0, duration: 520, ease: 'linear' },
+            { translateX: -300, scale: 2.6, top: 110, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
+            { translateX: 100, scale: 1.2, top: 180, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
         ],
     ];
     const splitConfigs = window.innerWidth <= 960 && window.innerHeight <= 620
