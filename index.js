@@ -48,6 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('is-ios');
     }
 
+    const setViewportHeightCSSVar = () => {
+        const vh = window?.innerHeight || BASE_SPLIT_HEIGHT;
+        document.documentElement.style.setProperty('--app-vh', `${vh}px`);
+    };
+
+    setViewportHeightCSSVar();
+
     const STEP_BASE_HEIGHT_FLOOR = 800;
     const getBaseStepHeight = () => {
         const viewportHeight = window?.innerHeight || BASE_SPLIT_HEIGHT;
@@ -1277,6 +1284,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const handleResize = () => {
+        setViewportHeightCSSVar();
         updateScrollSpacingSettings();
         applyStepHeights();
         syncScrollSpacers();
@@ -1291,11 +1299,13 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', () => {
         window.setTimeout(() => {
+            setViewportHeightCSSVar();
             handleResize();
             updateOrientationState();
         }, 120);
     });
     window.addEventListener('load', () => {
+        setViewportHeightCSSVar();
         updateScrollSpacingSettings();
         applyStepHeights();
         updateSplitMeasurements();
