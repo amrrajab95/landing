@@ -927,6 +927,27 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const applySplitTransform = (scrollY) => {
+        const clampScaleForImage = (targetScale, imageNode, width, height) => {
+            if (!imageNode || targetScale <= 1) {
+                return targetScale;
+            }
+
+            let clamped = targetScale;
+            const naturalWidth = imageNode.naturalWidth || 0;
+            const naturalHeight = imageNode.naturalHeight || 0;
+
+            if (naturalWidth > 0 && width > 0) {
+                const maxWidthScale = Math.max(naturalWidth / width, 1);
+                clamped = Math.min(clamped, maxWidthScale);
+            }
+
+            if (naturalHeight > 0 && height > 0) {
+                const maxHeightScale = Math.max(naturalHeight / height, 1);
+                clamped = Math.min(clamped, maxHeightScale);
+            }
+
+            return clamped;
+        };
         const viewportScaleFactor = getViewportScaleFactor();
         splitGalleries.forEach((entry, index) => {
             const { container, measurements, config } = entry;
@@ -1076,6 +1097,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 image.dataset.activeSrc = targetSrc;
             }
 
+            scale = clampScaleForImage(scale, image, containerWidth, containerHeight);
+
             const transitionValue = `transform ${durationMs}ms ${ease}, top ${durationMs}ms ${ease}`;
             if (image.dataset.transitionValue !== transitionValue) {
                 image.style.transition = transitionValue;
@@ -1084,6 +1107,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             image.style.transformOrigin = '50% 50%';
             image.style.transform = `translateX(${translateX}px) scale(${scale})`;
+            if (scale > 1) {
+                image.style.setProperty('image-rendering', '-webkit-optimize-contrast');
+            } else {
+                image.style.removeProperty('image-rendering');
+            }
 
             if (topOffset === null || topOffset === undefined) {
                 image.style.top = '';
