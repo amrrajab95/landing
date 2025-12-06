@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { translateX: -840, scale: 0.95, top: 200, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
         ],
     ]; 
-    const splitConfigsLandscapeMobile = [
+    const rawSplitConfigsLandscapeMobile = [
         [
             { translateX: 200, scale: 1.3, top: 120, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false },
             { translateX: 920, scale: 3, top: -25, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
@@ -418,12 +418,94 @@ document.addEventListener('DOMContentLoaded', () => {
             },
         ],
         [ 
-            { translateX: 450, scale: 2, top: 130, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
-            { translateX: 1000, scale: 2.5, top: 180, bottom: null, captionIndex: 0, duration: 520, ease: 'linear' },
-            { translateX: -300, scale: 2.6, top: 110, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
-            { translateX: 100, scale: 1.2, top: 180, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
+            {
+                translateX: 450,
+                scale: 2,
+                top: 130,
+                bottom: null,
+                captionIndex: -1,
+                duration: 520,
+                ease: 'linear',
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: 1000,
+                scale: 2.5,
+                top: 180,
+                bottom: null,
+                captionIndex: 0,
+                duration: 520,
+                ease: 'linear',
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: -300,
+                scale: 2.6,
+                top: 110,
+                bottom: null,
+                captionIndex: 1,
+                duration: 520,
+                ease: 'linear',
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
+            {
+                translateX: 100,
+                scale: 1.2,
+                top: 180,
+                bottom: null,
+                captionIndex: -1,
+                duration: 520,
+                ease: 'linear',
+                applyWidthScale: false,
+                applyViewportScale: false,
+                applyHeightScale: false,
+            },
         ],
     ];
+    // Ensure landscape mobile configs scale relative to a common viewport size.
+    const MOBILE_LANDSCAPE_BASE_WIDTH = 844;
+    const MOBILE_LANDSCAPE_BASE_HEIGHT = 390;
+    const MOBILE_LANDSCAPE_WIDTH_CLAMP = [0.45, 1.3];
+    const MOBILE_LANDSCAPE_HEIGHT_CLAMP = [0.45, 1.35];
+    const mapLandscapeMobileEntry = (entry) => {
+        if (!entry || typeof entry !== 'object') {
+            return entry;
+        }
+
+        const sanitized = { ...entry };
+        delete sanitized.applyWidthScale;
+        delete sanitized.applyHeightScale;
+
+        if (typeof sanitized.widthBase !== 'number') {
+            sanitized.widthBase = MOBILE_LANDSCAPE_BASE_WIDTH;
+        }
+        if (typeof sanitized.heightBase !== 'number') {
+            sanitized.heightBase = MOBILE_LANDSCAPE_BASE_HEIGHT;
+        }
+        if (!Array.isArray(sanitized.widthClamp)) {
+            sanitized.widthClamp = MOBILE_LANDSCAPE_WIDTH_CLAMP;
+        }
+        if (!Array.isArray(sanitized.heightClamp)) {
+            sanitized.heightClamp = MOBILE_LANDSCAPE_HEIGHT_CLAMP;
+        }
+        if (typeof sanitized.widthStrategy !== 'string') {
+            sanitized.widthStrategy = 'clamp';
+        }
+        if (typeof sanitized.heightStrategy !== 'string') {
+            sanitized.heightStrategy = 'clamp';
+        }
+
+        return sanitized;
+    };
+    const splitConfigsLandscapeMobile = rawSplitConfigsLandscapeMobile.map((group) =>
+        Array.isArray(group) ? group.map(mapLandscapeMobileEntry) : group
+    );
     const splitConfigs = window.innerWidth <= 960 && window.innerHeight <= 620
         ? splitConfigsLandscapeMobile
         : splitConfigsDesktop;
@@ -470,14 +552,53 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     updateOrientationState();
-    const scrollGalleries = Array.from(document.querySelectorAll('.scroll-gallery')).map((gallery) => {
-        const images = Array.from(gallery.querySelectorAll('.image-display img'));
+    const scrollGalleries = Array.from(
+        document.querySelectorAll('.scroll-gallery')
+    ).map((gallery) => {
+        const images = Array.from(
+            gallery.querySelectorAll('.image-display img')
+        );
         const spacer = gallery.querySelector('.scroll-spacer');
+        const toFiniteNumber = (value) => {
+            if (value === undefined || value === null || value === '') {
+                return null;
+            }
+            const parsed = Number.parseFloat(value);
+            return Number.isFinite(parsed) ? parsed : null;
+        };
+        const clampNumber = (value, min, max) =>
+            Math.min(Math.max(value, min), max);
+
+        const transitionMultiplierRaw = toFiniteNumber(
+            gallery.dataset.transitionMultiplier
+        );
+        const transitionMultiplier =
+            transitionMultiplierRaw !== null
+                ? clampNumber(transitionMultiplierRaw, 0.3, 3)
+                : 1;
+        const tailMultiplierRaw = toFiniteNumber(
+            gallery.dataset.tailMultiplier
+        );
+        const tailMultiplier =
+            tailMultiplierRaw !== null
+                ? clampNumber(tailMultiplierRaw, 0.3, 3)
+                : 1;
+        const transitionOverride = toFiniteNumber(
+            gallery.dataset.transitionDistance
+        );
+        const tailExtraRaw = toFiniteNumber(gallery.dataset.tailExtra);
+        const tailExtra =
+            tailExtraRaw !== null ? Math.max(tailExtraRaw, 0) : 0;
+
         return {
             gallery,
             images,
             spacer,
-        }; 
+            transitionMultiplier,
+            tailMultiplier,
+            transitionOverride,
+            tailExtra,
+        };
     });
     const pairedGalleries = Array.from(document.querySelectorAll('.paired-gallery')).map((section) => {
         const display = section.querySelector('.paired-display');
@@ -629,13 +750,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return { opacities, activeIndex };
     };
-    const computeOpacity = (index, localScroll) => {
+    const computeOpacity = (index, localScroll, distance) => {
         if (index === 0) {
             return 1;
         }
 
-        const fadeInStart = (index - 1) * transitionDistance;
-        const fadeInEnd = index * transitionDistance;
+        const stepDistance = distance ?? transitionDistance;
+        const fadeInStart = (index - 1) * stepDistance;
+        const fadeInEnd = index * stepDistance;
 
         if (localScroll <= fadeInStart) {
             return 0;
@@ -645,30 +767,56 @@ document.addEventListener('DOMContentLoaded', () => {
             return 1;
         }
 
-        const progress = (localScroll - fadeInStart) / transitionDistance;
+        const progress = (localScroll - fadeInStart) / stepDistance;
         return clamp(progress, 0, 1);
     };
 
     const syncScrollSpacers = () => {
+        const viewportHeight = window.innerHeight || 0;
         scrollGalleries.forEach((entry, galleryIndex) => {
-            const { images, spacer } = entry;
+            const {
+                images,
+                spacer,
+                transitionMultiplier = 1,
+                tailMultiplier = 1,
+                transitionOverride,
+                tailExtra = 0,
+            } = entry;
             if (!spacer || images.length === 0) {
-            return;
-        }
+                return;
+            }
 
-        const transitions = Math.max(images.length - 1, 0);
-            const totalScroll = transitionDistance * transitions;
-        const tailBase = Math.max(
-            (window.innerHeight || 0) * 0.5,
-            transitionDistance * tailPaddingFactor
-        );
-        const isLastGallery = galleryIndex === scrollGalleries.length - 1;
-        const lastGalleryPadding = Math.max(
-            (window.innerHeight || 0) + iosSafeAreaBottom,
-            tailBase + iosSafeAreaBottom
-        );
-        const tailPadding = isLastGallery ? lastGalleryPadding : tailBase;
+            const transitions = Math.max(images.length - 1, 0);
+            const baseTransition =
+                transitionOverride !== null && Number.isFinite(transitionOverride)
+                    ? transitionOverride
+                    : transitionDistance;
+            const multiplier = Math.max(transitionMultiplier, 0.3);
+            const effectiveDistance = Math.min(
+                Math.max(baseTransition * multiplier, 40),
+                1200
+            );
+            const totalScroll = effectiveDistance * transitions;
+            const baseTail = Math.max(
+                viewportHeight * 0.5,
+                effectiveDistance * tailPaddingFactor
+            );
+            const tailBase = Math.min(
+                Math.max(baseTail * Math.max(tailMultiplier, 0.3), 0),
+                2000
+            );
+            const isLastGallery = galleryIndex === scrollGalleries.length - 1;
+            const lastGalleryPadding = Math.max(
+                viewportHeight * Math.max(tailMultiplier, 1) + iosSafeAreaBottom,
+                tailBase + iosSafeAreaBottom
+            );
+            const tailPadding =
+                (isLastGallery ? lastGalleryPadding : tailBase) + Math.max(tailExtra, 0);
+
             spacer.style.height = `${totalScroll + tailPadding}px`;
+            entry.transitionDistancePx = effectiveDistance;
+            entry.totalScrollPx = totalScroll;
+            entry.tailPaddingPx = tailPadding;
         });
     };
 
@@ -1056,7 +1204,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const galleryTop = gallery.offsetTop;
             const localScroll = Math.max(0, scrollY - galleryTop);
             const transitions = Math.max(images.length - 1, 0);
-            const totalScroll = transitionDistance * transitions;
+            const effectiveDistance =
+                entry.transitionDistancePx || transitionDistance;
+            const totalScroll =
+                entry.totalScrollPx ?? effectiveDistance * transitions;
             const lastImageIndex = images.length - 1;
             const isLastGallery = galleryIndex === scrollGalleries.length - 1;
             const isSectionSeven = gallery.classList.contains('sec-7');
@@ -1071,8 +1222,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const hasOverlayTarget =
                 isSectionSeven && lastImageIndex >= 0 && overlayNode;
 
-        images.forEach((img, index) => {
-                let opacity = computeOpacity(index, localScroll);
+            images.forEach((img, index) => {
+                let opacity = computeOpacity(index, localScroll, effectiveDistance);
 
                 if (transitions > 0 && index === lastImageIndex) {
                     const finalThreshold = Math.max(totalScroll - 1, totalScroll * 0.98);
@@ -1087,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const reachedFullOpacity = opacity >= 0.999;
                     const fadeInStart = totalScroll;
                     const fadeInDuration = Math.max(
-                        transitionDistance * 0.6,
+                        effectiveDistance * 0.6,
                         1
                     );
                     const rawProgress = reachedFullOpacity
