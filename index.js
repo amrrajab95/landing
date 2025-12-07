@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const BASE_SPLIT_WIDTH = 1905;
-    const BASE_SPLIT_HEIGHT = 910;
+    // Desktop design baseline (your screen): use this for proportional scaling.
+    const BASE_SPLIT_WIDTH = 1920;
+    const BASE_SPLIT_HEIGHT = 911;
     const pointerMedia =
         typeof window !== 'undefined' && typeof window.matchMedia === 'function'
             ? window.matchMedia('(pointer: coarse)')
@@ -53,7 +54,23 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.style.setProperty('--app-vh', `${vh}px`);
     };
 
+    const hydrateHiResImages = () => {
+        const candidates = document.querySelectorAll('img[data-hires]');
+        candidates.forEach((img) => {
+            const hires = img.dataset.hires;
+            if (!hires) {
+                return;
+            }
+            const baseSrc = img.getAttribute('src') || '';
+            img.setAttribute('srcset', `${baseSrc} 1x, ${hires} 2x`);
+            if (!img.getAttribute('sizes')) {
+                img.setAttribute('sizes', '100vw');
+            }
+        });
+    };
+
     setViewportHeightCSSVar();
+    hydrateHiResImages();
 
     const STEP_BASE_HEIGHT_FLOOR = 800;
     const getBaseStepHeight = () => {
@@ -598,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tailMultiplier,
             transitionOverride,
             tailExtra,
-        };
+        }; 
     });
     const pairedGalleries = Array.from(document.querySelectorAll('.paired-gallery')).map((section) => {
         const display = section.querySelector('.paired-display');
@@ -783,10 +800,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 tailExtra = 0,
             } = entry;
             if (!spacer || images.length === 0) {
-                return;
-            }
+            return;
+        }
 
-            const transitions = Math.max(images.length - 1, 0);
+        const transitions = Math.max(images.length - 1, 0);
             const baseTransition =
                 transitionOverride !== null && Number.isFinite(transitionOverride)
                     ? transitionOverride
@@ -804,12 +821,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const tailBase = Math.min(
                 Math.max(baseTail * Math.max(tailMultiplier, 0.3), 0),
                 2000
-            );
-            const isLastGallery = galleryIndex === scrollGalleries.length - 1;
-            const lastGalleryPadding = Math.max(
+        );
+        const isLastGallery = galleryIndex === scrollGalleries.length - 1;
+        const lastGalleryPadding = Math.max(
                 viewportHeight * Math.max(tailMultiplier, 1) + iosSafeAreaBottom,
-                tailBase + iosSafeAreaBottom
-            );
+            tailBase + iosSafeAreaBottom
+        );
             const tailPadding =
                 (isLastGallery ? lastGalleryPadding : tailBase) + Math.max(tailExtra, 0);
 
@@ -928,6 +945,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const applySplitTransform = (scrollY) => {
         const viewportScaleFactor = getViewportScaleFactor();
+        const clampScaleForImage = (targetScale, imageNode, width, height) => {
+            if (!imageNode || targetScale <= 1) {
+                return targetScale;
+            }
+
+            let clamped = targetScale;
+            const naturalWidth = imageNode.naturalWidth || 0;
+            const naturalHeight = imageNode.naturalHeight || 0;
+
+            if (naturalWidth > 0 && width > 0) {
+                const maxWidthScale = Math.max(naturalWidth / width, 1);
+                clamped = Math.min(clamped, maxWidthScale);
+            }
+
+            if (naturalHeight > 0 && height > 0) {
+                const maxHeightScale = Math.max(naturalHeight / height, 1);
+                clamped = Math.min(clamped, maxHeightScale);
+            }
+
+            return clamped;
+        };
         splitGalleries.forEach((entry, index) => {
             const { container, measurements, config } = entry;
             if (!container || !measurements) {
@@ -975,7 +1013,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 widthBase > 0 ? containerWidth / widthBase : 1;
             const heightRatioRaw =
                 heightBase > 0 ? containerHeight / heightBase : 1;
+            const isDesktop = (window.innerWidth || 0) > 960;
+            const isSmallDesktop =
+                isDesktop &&
+                (window.innerWidth || 0) <= 1280 &&
+                (window.innerHeight || 0) <= 720;
+            const baseFit = Math.min(widthRatioRaw, heightRatioRaw);
 
+            // Position fit: stronger downscale on narrow desktops, gentle up to 1.05 on larger.
             const [minWidthClamp, maxWidthClamp] = Array.isArray(
                 current.widthClamp
             )
@@ -990,7 +1035,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const widthStrategy = current.widthStrategy || 'full';
             const heightStrategy = current.heightStrategy || 'full';
 
-            const widthRatio =
+            let widthRatio =
                 widthStrategy === 'fixed'
                     ? 1
                     : clamp(
@@ -999,7 +1044,7 @@ document.addEventListener('DOMContentLoaded', () => {
                           maxWidthClamp ?? 1.55
                       );
 
-            const heightRatio =
+            let heightRatio =
                 heightStrategy === 'fixed'
                     ? 1
                     : clamp(
@@ -1007,6 +1052,16 @@ document.addEventListener('DOMContentLoaded', () => {
                           minHeightClamp ?? 0.7,
                           maxHeightClamp ?? 1.45
                       );
+
+            let positionFit = isDesktop ? clamp(baseFit, 0.55, 1.05) : 1;
+            // Scale fit: keep images closer to baseline, but still adapt down on smaller desktops.
+            let scaleFit = isDesktop ? clamp(baseFit, 0.65, 1.05) : 1;
+
+            if (isSmallDesktop) {
+                // Refined approximation for ~1280x630: keep scale near baseline, modestly pull positions in.
+                positionFit = 0.85;
+                scaleFit = 1.0;
+            }
 
         if (segment && segment.duration) {
             const relativeWithinSegment = clamp(
@@ -1021,11 +1076,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let scale = current.scale ?? 1;
+        if (isDesktop && typeof scale === 'number') {
+            scale *= scaleFit;
+        }
         let translateX;
         if (typeof current.translateXBase === 'number') {
-            translateX = current.translateXBase * widthRatio;
+            translateX = current.translateXBase * widthRatio * positionFit;
         } else if (typeof current.translateX === 'number') {
-            translateX = current.translateX * widthRatio;
+            translateX = current.translateX * widthRatio * positionFit;
         } else if (typeof current.translateX === 'string') {
             translateX = current.translateX;
         } else {
@@ -1034,9 +1092,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let topOffset;
         if (typeof current.topBase === 'number') {
-            topOffset = current.topBase * heightRatio;
+            topOffset = current.topBase * heightRatio * positionFit;
         } else if (typeof current.top === 'number') {
-            topOffset = current.top * heightRatio;
+            topOffset = current.top * heightRatio * positionFit;
         } else if (typeof current.top === 'string') {
             topOffset = current.top;
         } else {
@@ -1045,9 +1103,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let bottomOffset;
         if (typeof current.bottomBase === 'number') {
-            bottomOffset = current.bottomBase * heightRatio;
+            bottomOffset = current.bottomBase * heightRatio * positionFit;
         } else if (typeof current.bottom === 'number') {
-            bottomOffset = current.bottom * heightRatio;
+            bottomOffset = current.bottom * heightRatio * positionFit;
         } else if (typeof current.bottom === 'string') {
             bottomOffset = current.bottom;
         } else {
@@ -1076,6 +1134,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 image.dataset.activeSrc = targetSrc;
             }
 
+            scale = clampScaleForImage(scale, image, containerWidth, containerHeight);
+
             const transitionValue = `transform ${durationMs}ms ${ease}, top ${durationMs}ms ${ease}`;
             if (image.dataset.transitionValue !== transitionValue) {
                 image.style.transition = transitionValue;
@@ -1084,6 +1144,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             image.style.transformOrigin = '50% 50%';
             image.style.transform = `translateX(${translateX}px) scale(${scale})`;
+            if (scale > 1) {
+                image.style.setProperty('image-rendering', '-webkit-optimize-contrast');
+            } else {
+                image.style.removeProperty('image-rendering');
+            }
 
             if (topOffset === null || topOffset === undefined) {
                 image.style.top = '';
@@ -1222,7 +1287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const hasOverlayTarget =
                 isSectionSeven && lastImageIndex >= 0 && overlayNode;
 
-            images.forEach((img, index) => {
+        images.forEach((img, index) => {
                 let opacity = computeOpacity(index, localScroll, effectiveDistance);
 
                 if (transitions > 0 && index === lastImageIndex) {
