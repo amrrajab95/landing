@@ -157,7 +157,13 @@
         .sec-7.is-overlay-active .section-overlay {
             opacity: 1;
             visibility: visible;
-            transform: translate(-50%, 0);
+            transform: translate(-50%, 0); 
+        }
+        .scroll-gallery.sec-5 .image-display {
+            background-image: url("assets/images/sec_6_bg.png");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
         .scroll-gallery--contain .image-display img {
             object-fit: contain;
@@ -174,7 +180,7 @@
             left: 0;
             right: 0;
             height: 12px;
-            background-color: #233d94;
+            background-color: #ffffff;
             z-index: 1;
             pointer-events: none;
         }
@@ -290,11 +296,10 @@
         .split-caption {
             position: absolute; 
             left: 300px;
-            width: min(520px, 50vw);
             color: #fff;
             padding: 24px 28px;
             border-radius: 18px;
-            font-size: 20px;
+            font-size: 16px;
             line-height: 1.7;
             bottom: -120px;
             opacity: 0;
@@ -307,16 +312,23 @@
             left: 450px;
         }
         .sec-4 .split-caption.s-2{
-            left: 850px;
+            right: 10%;
         }
     
         .split-gallery.sec_2 .split-caption {
             left: initial;
-            right: 15px;
+            right: 12%;
+        }
+        .split-gallery.sec_2 .split-caption.s-2-1{
+            max-width: 34.666667%;
         }
         .split-gallery.sec_6 .split-caption {
             left: initial;
-            right: 430px;
+            right: 14%;
+            max-width: 41%;
+        }
+        .split-gallery.sec_6 .split-caption.sec-6-2{
+            right: 22%;
         }
         .split-caption.is-active {
             opacity: 1;
@@ -634,20 +646,28 @@
             <img src="assets/images/sec_2.png" alt="مشاهد بيئية متنوعة في فلسطين" loading="lazy" class="split-pan-image" />
             <div class="split-caption-layer" aria-hidden="true">
                 <div class="split-caption s-2-1" data-caption="0"> 
-                    <b style="color: rgb(0 170 101)">البيئة</b>
-                     هي كل ما يحيط بنا من هواء وماء وتربة وكائنات حية ومنشآت، وهي .الأساس الذي تقوم عليه حياتنا اليومية
+                    <p>
+                        <b style="color: rgb(0 170 101)">البيئة</b>
+                         هي كل ما يحيط بنا من هواء وماء وتربة وكائنات حية ومنشآت، وهي الأساس الذي تقوم عليه حياتنا اليومية
 
-القانون الفلسطيني ينظر إلى البيئة كحق من حقوق الإنسان، ويعتبر الحفاظ عليها واجبًا وطنيًا ومسؤولية جماعية من أجل الحاضر والمستقبل
+                    </p>
+                    <p>
+                        القانون الفلسطيني ينظر إلى البيئة كحق من حقوق الإنسان، ويعتبر الحفاظ عليها واجبًا وطنيًا ومسؤولية جماعية من أجل الحاضر والمستقبل
 
-,البيئة النظيفة حق من حقوق الإنسان وعلى السلطة الوطنية الفلسطينية الحفاظ عليها وحمايتها من أجل .أجيال الحاضر والمستقبل
+                    </p>
+                    <p>
+                        البيئة النظيفة حق من حقوق الإنسان وعلى السلطة الوطنية الفلسطينية الحفاظ عليها وحمايتها من أجل .أجيال الحاضر والمستقبل
 
+                    </p>
 <p style="font-size: 12px !important;">(المادة 33 من القانون الأساسي الفلسطيني)</p>
 
                 </div>
                 <div class="split-caption s-2-2" data-caption="2">
-                    من يحمي البيئة في فلسطين؟
-عدة جهات رسمية تعمل معًا لحماية البيئة الفلسطينية، أهمها
-:
+                    <p>من يحمي البيئة في فلسطين؟
+                    </p>
+                    <p>
+                        عدة جهات رسمية تعمل معًا لحماية البيئة الفلسطينية، أهمها:
+                    </p>
                 </div>
             </div>  
         </div>
@@ -659,8 +679,8 @@
             <div class="split-step" data-segment="reset"></div>
         </div>
     </section>  
-    <section class="paired-gallery">
-        <div class="paired-display" aria-live="polite">
+    <section class="paired-gallery"> 
+        <div class="paired-display" style="padding-top: 35px;" aria-live="polite">
             <div class="paired-column" data-stack="left">
                     <img src="assets/images/sec_3_1.png" alt="برنامج توعية بيئية في فلسطين" loading="lazy" data-stage="0" class="is-active" />
                     <img src="assets/images/sec_3_3.png" alt="أنشطة تشجير في القرى الفلسطينية" loading="lazy" data-stage="1" />
@@ -668,7 +688,7 @@
             </div>
             <div class="paired-column" data-stack="right">
                     <img src="assets/images/sec_3_2.png" alt="متطوعون ينظفون الشواطئ الفلسطينية" loading="lazy" data-stage="0" class="is-active" />
-                    <img src="assets/images/sec_3_6.png" alt="حملات لنظافة الأحياء الفلسطينية" loading="lazy" data-stage="1" />
+                    <img src="assets/images/sec_3_6.png" style="top: 5px;height: 80%;right: -10px;" alt="حملات لنظافة الأحياء الفلسطينية" loading="lazy" data-stage="1" />
             </div>
         </div>
         <div class="paired-scroll-spacer" aria-hidden="true"></div>
@@ -678,18 +698,18 @@
             <img src="assets/images/sec_4.png" alt="مشاريع بيئية مبتكرة في فلسطين" loading="lazy" class="split-pan-image sec_4" />
             <div class="split-caption-layer" aria-hidden="true">
                 <div class="split-caption" data-caption="2">
-                    <b style="color: #FBB516;font-size: 24px;">الجريمة البيئية </b>
+                    <b style="color: #FBB516;font-size: 20px;">الجريمة البيئية </b>
                     <p>
                         الجريمة البيئية في فلسطين هي كل فعل يخالف قانون البيئة رقم (7) لسنة 1999 ويتسبب بتلويث البيئة أو استنزاف مواردها، مما يضر بصحة الإنسان والكائنات الحية وتشمل التلوث، تدمير النظم البيئية، الاتجار غير المشروع بالموارد، والتعامل غير القانوني مع النفايات الخطرة
                     </p>
-                    <b style="color: #FBB516;font-size: 24px;">
+                    <b style="color: #FBB516;font-size: 20px;">
 
                         شبهة الفساد في القطاع البيئي:
                     </b>
                     <p>
                         هي شبهة استغلال النفوذ أو التلاعب بالإجراءات القانونية لتمرير أنشطة ملوِّثة أو مدمّرة للموارد الطبيعية مقابل منافع خاصة
                     </p>
-                    <b style="color: #FBB516;font-size: 24px;">
+                    <b style="color: #FBB516;font-size: 20px;">
 
                         القانون يعاقب هذه الأفعال بالعقوبات التالية:
 
@@ -699,7 +719,7 @@
                     <img width="780" src="assets/images/sec_4_text_1.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
                 </div>
                 <div class="split-caption s-2" data-caption="3">
-                    <b style="color: #FBB516;font-size: 24px;">
+                    <b style="color: #FBB516;font-size: 20px;">
                         ماذا تفعل إذا شاهدت مخالفة بيئية؟
                     </b>
                     <p>
@@ -720,7 +740,7 @@
         </div> 
     </section> 
     <main class="scroll-gallery scroll-gallery--contain sec-5" data-transition-multiplier="1.35" data-tail-multiplier="1.15">
-        <div class="image-display" aria-live="polite">
+        <div class="image-display" style="top: 15px;" aria-live="polite">
             <img src="assets/images/sec_5_1.png" alt="مشروع تنظيف مستمر للشواطئ الفلسطينية" data-image="sec_5_1" loading="lazy" />
             <img src="assets/images/sec_5_2.png" alt="ورش توعية حول إعادة التدوير في المدارس الفلسطينية" data-image="sec_5_2" loading="lazy" />
             <img src="assets/images/sec_5_3.png" alt="مبادرات محلية لزراعة الأسطح والمسطحات الخضراء" data-image="sec_5_3" loading="lazy" />
@@ -736,7 +756,7 @@
             <img src="assets/images/sec_6.png" alt="حلول بيئية مبتكرة" loading="lazy" class="split-pan-image" />
             <div class="split-caption-layer" aria-hidden="true">
                 <div class="split-caption" data-caption="0">
-                    <b style="color: #FBB516;font-size: 24px;">
+                    <b style="color: #FBB516;font-size: 20px;">
                         كيف تُتابع الجهات الرسمية المخالفات؟
                     </b>
                     <p>
@@ -746,9 +766,11 @@
                 
                     <img width="780" src="assets/images/sec_6_2.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
                         <p>
-                            القانون يمنح مفتشي سلطة جودة البيئة صفة الضابطة العدلية، أي الحق في دخول المنشآت، أخذ العينات .وضبط الأدلة
+                            القانون يمنح مفتشي سلطة جودة البيئة صفة الضابطة العدلية، أي الحق في دخول المنشآت، أخذ العينات 
+                            وضبط الأدلة
+                            .
                         </p>
-                        <b style="color: #FBB516;font-size: 24px;">
+                        <b style="color: #FBB516;font-size: 20px;">
                             الاتفاقيات الدولية التي انضمت إليها فلسطين:
                         </b>
                         <p>
@@ -757,7 +779,7 @@
                         </p>
                     <img width="780" src="assets/images/sec_6_3.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
                 </div>
-                <div class="split-caption" data-caption="1">
+                <div class="split-caption sec-6-2" data-caption="1">
                     <img width="780" src="assets/images/sec_6_1.png" alt="القانون يعاقب هذه الأفعال بالعقوبات التالية" loading="lazy" />
                 </div>
             </div>
@@ -775,7 +797,7 @@
             <img src="assets/images/sec_7_2.png" alt="استكمال الجهود البيئية المجتمعية" data-image="sec_7_2" loading="lazy" />
         </div>
         <div class="section-message" aria-hidden="true">
-            <p style="font-size: 24px; font-weight: 700; color: #FBB516">
+            <p style="font-size: 20px; font-weight: 700; color: #FBB516">
                 صوّر، دوّن، وثّق، وأبلغ فوراً عبر الرابط التالي:
             </p>
             <a style="    background-color: #FBB516; 
@@ -784,7 +806,7 @@
             padding: 10px;
             border-radius: 10px;
             text-decoration: none;" href="https://portal.pengon.org/complaint" target="_blank">اضغط هنا</a>
-            <p style="font-size: 24px; font-weight: 700;margin-top: 20px; color: #FBB516">
+            <p style="font-size: 20px; font-weight: 700;margin-top: 20px; color: #FBB516">
                 صوتك يحمي البيئة
             </p> 
         </div> 
