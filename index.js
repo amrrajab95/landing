@@ -53,7 +53,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.style.setProperty('--app-vh', `${vh}px`);
     };
 
+    const hydrateHiResImages = () => {
+        const candidates = document.querySelectorAll('img[data-hires]');
+        candidates.forEach((img) => {
+            const hires = img.dataset.hires;
+            if (!hires) {
+                return;
+            }
+            const tester = new Image();
+            tester.onload = () => {
+                const baseSrc = img.getAttribute('src') || '';
+                img.setAttribute('srcset', `${baseSrc} 1x, ${hires} 2x`);
+                if (!img.getAttribute('sizes')) {
+                    img.setAttribute('sizes', '100vw');
+                }
+            };
+            tester.src = hires;
+        });
+    };
+
     setViewportHeightCSSVar();
+    hydrateHiResImages();
 
     const STEP_BASE_HEIGHT_FLOOR = 800;
     const getBaseStepHeight = () => {
