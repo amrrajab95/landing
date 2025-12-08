@@ -286,13 +286,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ]; 
     const rawSplitConfigsLandscapeMobile = [
         [
-            { translateX: 200, scale: 1.3, top: 120, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false },
-            { translateX: 920, scale: 3, top: -25, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
-            { translateX: 105, scale: 2.6, top: 140, bottom: null, captionIndex: 1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 130, scale: 1.25, top: 130, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false },
+            { translateX: 935, scale: 3.15, top: -27, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 120, scale: 3, top: 140, bottom: null, captionIndex: 1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
             {
-                translateX: -535,
-                scale: 2.6,
-                top: 140,
+                translateX: -620,
+                scale: 3,
+                top: 160,
                 bottom: null,
                 captionIndex: 2,
                 duration: 760,
@@ -321,9 +321,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
         [
             {
-                translateX: 90,
-                scale: 1.08,
-                top: 40,
+                translateX: 35,
+                scale: 1,
+                top: 45,
                 bottom: null,
                 captionIndex: -1,
                 duration: 460,
