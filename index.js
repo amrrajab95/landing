@@ -307,9 +307,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyHeightScale: false,
             },
             {
-                translateX: -300,
-                scale: 1,
-                top: 100,
+                translateX: -10,
+                scale: 0.9,
+                top: 110,
                 bottom: null,
                 captionIndex: -1,
                 duration: 680,
