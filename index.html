@@ -2,14 +2,14 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" data-v="1.7" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" data-v="1.88" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>حماية البيئة في فلسطين</title>
     <link rel="preload" as="image" href="assets/images/sec_1_1.png" />
     <link rel="preload" as="image" href="assets/images/sec_1_2.png" />
     <link rel="preload" as="image" href="assets/images/sec_1_3.png" />
     <script src="index.js" defer></script>
    <style>
-        @font-face {
+        @font-face {  
             font-family: 'Noto Kufi Arabic';
             font-style: normal;
             font-weight: 300 700;
@@ -163,7 +163,15 @@
             background-image: url("assets/images/sec_6_bg.png");
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
+            background-repeat: no-repeat; 
+        }
+        .scroll-gallery.sec-5 .image-display img {
+            top: 20px;
+            right: 35px;
+            bottom: 0;
+            left: 20px;
+            width: calc(100% - 40px);
+            height: calc(100% - 20px);
         }
         .scroll-gallery--contain .image-display img {
             object-fit: contain;
@@ -295,7 +303,7 @@
 
         .split-caption {
             position: absolute; 
-            left: 300px;
+            left: 15.6%; /* 300/1920 - scales with viewport */
             color: #fff;
             padding: 24px 28px;
             border-radius: 18px;
@@ -306,10 +314,35 @@
             transition: opacity 220ms ease-out;
             will-change: opacity;
             text-align: center;
+            /* Flexbox for centering text with images */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .split-caption p {
+            margin: 0.5em 0;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .split-caption img {
+            display: block;
+            margin: 12px auto;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .split-caption b,
+        .split-caption strong {
+            display: block;
+            text-align: center;
+            width: 100%;
         }
         .sec-4 .split-caption{
-            width: min(800px, 50vw);
-            left: 450px;
+            width: min(800px, 42vw);
+            left: 23.4%; /* 450/1920 - scales with viewport */
         }
         .sec-4 .split-caption.s-2{
             right: 10%;
@@ -320,7 +353,7 @@
             right: 12%;
         }
         .split-gallery.sec_2 .split-caption.s-2-1{
-            max-width: 34.666667%;
+            max-width: 42.666667%;
         }
         .split-gallery.sec_6 .split-caption {
             left: initial;
@@ -506,6 +539,85 @@
                 animation-duration: 0.01ms !important;
             }
         }
+        /* Responsive scaling for screens larger than design reference (1920px) */
+        @media (min-width: 1921px) {
+            .split-caption {
+                left: 350px;
+                font-size: 18px;
+            }
+            .sec-4 .split-caption {
+                width: min(900px, 48vw);
+                left: 520px;
+            }
+            .split-gallery.sec_2 .split-caption {
+                right: 14%;
+            }
+            .split-gallery.sec_6 .split-caption {
+                right: 16%;
+                max-width: 38%;
+            }
+        }
+        
+        /* 1601px - 1920px: Use percentage-based positioning for smooth scaling */
+        @media (min-width: 1601px) and (max-width: 1920px) {
+            .split-caption {
+                left: 15.6%; /* 300/1920 = 15.6% */
+            }
+            .sec-4 .split-caption {
+                width: min(800px, 42vw);
+                left: 23.4%; /* 450/1920 */
+            }
+            .split-gallery.sec_2 .split-caption {
+                left: initial;
+                right: 12%;
+            }
+            .split-gallery.sec_6 .split-caption {
+                left: initial;
+                right: 14%;
+                max-width: 41%;
+            }
+        }
+        
+        /* Responsive scaling for screens smaller than design reference (1920px) */
+        @media (min-width: 1441px) and (max-width: 1600px) {
+            .split-caption {
+                left: 14.5%;
+            }
+            .sec-4 .split-caption {
+                width: min(700px, 45vw);
+                left: 20%;
+            }
+            .split-gallery.sec_2 .split-caption {
+                left: initial;
+                right: 10%;
+            }
+            .split-gallery.sec_6 .split-caption {
+                left: initial;
+                right: 12%;
+                max-width: 44%;
+            }
+        }
+        
+        @media (min-width: 1369px) and (max-width: 1440px) {
+            .split-caption {
+                left: 13%;
+                font-size: 15px;
+            }
+            .sec-4 .split-caption {
+                width: 50%;
+                left: 18%;
+            }
+            .split-gallery.sec_2 .split-caption {
+                left: initial;
+                right: 8%;
+            }
+            .split-gallery.sec_6 .split-caption {
+                left: initial;
+                right: 10%;
+                max-width: 48%;
+            }
+        }
+        
         @media (max-width: 1368px) {
             .split-pan-image {
                 left: 0;
@@ -546,19 +658,45 @@
                 right: -8% !important;
             } 
         }
+        
+        @media (max-width: 1200px) {
+            .split-caption {
+                font-size: 15px;
+                padding: 18px 22px;
+            }
+            .sec-4 .split-caption {
+                width: min(500px, 55vw);
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .sec-4 .split-caption.s-2 {
+                left: 50%;
+                right: initial !important;
+                transform: translateX(-50%);
+            }
+            .split-gallery.sec_2 .split-caption,
+            .split-gallery.sec_2 .split-caption.s-2-1 {
+                width: min(350px, 45vw);
+                left: 55%;
+            }
+            .split-gallery.sec_6 .split-caption {
+                max-width: 50%;
+                right: 8%;
+            }
+        }
         @media (max-width: 1024px) {
             .sec-7 .image-display img:first-of-type{
-          width: 92px;
-          margin: 0 auto;
-        }
-        .sec-7.is-message-active .section-message{
-            margin-top: 15px;
-        }
-        .sec-7 .image-display img:last-of-type{
-         width: 94px;
-         margin: 0px auto;
-         top: -43px; 
-        }
+                width: 92px;
+                margin: 0 auto;
+            }
+            .sec-7.is-message-active .section-message{
+                margin-top: 15px;
+            }
+            .sec-7 .image-display img:last-of-type{
+                width: 94px;
+                margin: 0px auto;
+                top: -43px; 
+            }
             .split-gallery.sec_6 .split-caption.sec-6-1{
                 max-width: 55%;
                 
@@ -570,9 +708,6 @@
             .image-display {
                 top: 0;
             }
-            /* .split-image-container {
-                height: 92vh;
-            } */
             .split-caption {
                 width: min(92vw, 520px);
                 font-size: 17px;
@@ -594,6 +729,39 @@
             }
             .sec-7 .section-bottom{
                 transform: translateY(85px) scale(1.1) !important;
+            }
+            /* Additional responsive adjustments for tablet-sized screens */
+            .sec-4 .split-caption {
+                width: min(450px, 60vw);
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .split-gallery.sec_2 .split-caption {
+                right: 5%;
+                width: min(300px, 40vw);
+            }
+            .split-gallery.sec_2 .split-caption.s-2-1 {
+                width: min(350px, 45vw);
+            }
+        }
+        
+        /* Additional breakpoint for smaller desktops/large tablets */
+        @media (min-width: 1025px) and (max-width: 1280px) {
+            .split-caption {
+                left: 220px;
+                font-size: 15px;
+                padding: 18px 22px;
+            }
+            .sec-4 .split-caption {
+                width: min(550px, 48vw);
+                left: 300px;
+            }
+            .split-gallery.sec_2 .split-caption {
+                right: 8%;
+            }
+            .split-gallery.sec_6 .split-caption {
+                right: 10%;
+                max-width: 42%;
             }
         }
         @media (max-width: 768px) {
@@ -668,7 +836,7 @@
             <div class="split-caption-layer" aria-hidden="true">
                 <div class="split-caption s-2-1" data-caption="0"> 
                     <p>
-                        <b style="color: rgb(0 170 101)">البيئة</b>
+                        <b style="color: rgb(0 170 101);display: inline;">البيئة</b>
                          هي كل ما يحيط بنا من هواء وماء وتربة وكائنات حية ومنشآت، وهي الأساس الذي تقوم عليه حياتنا اليومية
 
                     </p>
@@ -761,7 +929,7 @@
         </div> 
     </section> 
     <main class="scroll-gallery scroll-gallery--contain sec-5" data-transition-multiplier="1.35" data-tail-multiplier="1.15">
-        <div class="image-display" style="top: 15px;" aria-live="polite">
+        <div class="image-display" aria-live="polite">
             <img src="assets/images/sec_5_1.png" alt="مشروع تنظيف مستمر للشواطئ الفلسطينية" data-image="sec_5_1" loading="lazy" />
             <img src="assets/images/sec_5_2.png" alt="ورش توعية حول إعادة التدوير في المدارس الفلسطينية" data-image="sec_5_2" loading="lazy" />
             <img src="assets/images/sec_5_3.png" alt="مبادرات محلية لزراعة الأسطح والمسطحات الخضراء" data-image="sec_5_3" loading="lazy" />

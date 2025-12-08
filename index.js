@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const BASE_SPLIT_WIDTH = 1905;
-    const BASE_SPLIT_HEIGHT = 910;
+    // Design reference dimensions - all splitConfig values are based on these
+    const BASE_SPLIT_WIDTH = 1920;
+    const BASE_SPLIT_HEIGHT = 911; 
     const pointerMedia =
         typeof window !== 'undefined' && typeof window.matchMedia === 'function'
             ? window.matchMedia('(pointer: coarse)')
-            : null;
+            : null; 
     let transitionDistance = 220;
     const tailPaddingFactor = 0.03;
     let pairedTransitionDistance = 280;
@@ -188,8 +189,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ) {
             normalized.widthClamp =
                 normalized.widthStrategy === 'clamp'
-                    ? [0.85, 1.2]
-                    : [0.7, 1.55];
+                    ? [0.5, 1.3]
+                    : [0.35, 1.6];  // Wider range for better responsiveness
         }
 
         if (
@@ -198,8 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
         ) {
             normalized.heightClamp =
                 normalized.heightStrategy === 'clamp'
-                    ? [0.85, 1.25]
-                    : [0.7, 1.45];
+                    ? [0.5, 1.35]
+                    : [0.35, 1.5];  // Wider range for better responsiveness
         }
 
         delete normalized.applyWidthScale;
@@ -469,10 +470,12 @@ document.addEventListener('DOMContentLoaded', () => {
         ],
     ];
     // Ensure landscape mobile configs scale relative to a common viewport size.
+    // Based on typical mobile landscape dimensions (e.g., iPhone 14 Pro)
     const MOBILE_LANDSCAPE_BASE_WIDTH = 844;
     const MOBILE_LANDSCAPE_BASE_HEIGHT = 390;
-    const MOBILE_LANDSCAPE_WIDTH_CLAMP = [0.45, 1.3];
-    const MOBILE_LANDSCAPE_HEIGHT_CLAMP = [0.45, 1.35];
+    // Wider clamp ranges to support various tablet/phone landscape sizes
+    const MOBILE_LANDSCAPE_WIDTH_CLAMP = [0.35, 1.5];
+    const MOBILE_LANDSCAPE_HEIGHT_CLAMP = [0.35, 1.5];
     const mapLandscapeMobileEntry = (entry) => {
         if (!entry || typeof entry !== 'object') {
             return entry;
@@ -506,9 +509,58 @@ document.addEventListener('DOMContentLoaded', () => {
     const splitConfigsLandscapeMobile = rawSplitConfigsLandscapeMobile.map((group) =>
         Array.isArray(group) ? group.map(mapLandscapeMobileEntry) : group
     );
-    const splitConfigs = window.innerWidth <= 960 && window.innerHeight <= 620
-        ? splitConfigsLandscapeMobile
-        : splitConfigsDesktop;
+    
+    // Medium screen configs (for screens 961px - 1368px width)
+    // Based on 1368x768 reference dimensions - scaled from desktop configs
+    const MEDIUM_SCREEN_BASE_WIDTH = 1368;
+    const MEDIUM_SCREEN_BASE_HEIGHT = 768;
+    const mapMediumScreenEntry = (entry) => {
+        if (!entry || typeof entry !== 'object') return entry;
+        const scaled = { ...entry };
+        // Scale desktop values down to medium screen proportions
+        const widthScale = MEDIUM_SCREEN_BASE_WIDTH / BASE_SPLIT_WIDTH; // 1368/1920 = 0.7125
+        const heightScale = MEDIUM_SCREEN_BASE_HEIGHT / BASE_SPLIT_HEIGHT; // 768/911 = 0.843
+        
+        if (typeof scaled.translateX === 'number') {
+            scaled.translateX = Math.round(scaled.translateX * widthScale);
+        }
+        if (typeof scaled.top === 'number') {
+            scaled.top = Math.round(scaled.top * heightScale);
+        }
+        if (typeof scaled.bottom === 'number') {
+            scaled.bottom = Math.round(scaled.bottom * heightScale);
+        }
+        // Reduce extreme scale values for medium screens
+        if (typeof scaled.scale === 'number' && scaled.scale > 2) {
+            scaled.scale = scaled.scale * 0.85;
+        }
+        
+        scaled.widthBase = MEDIUM_SCREEN_BASE_WIDTH;
+        scaled.heightBase = MEDIUM_SCREEN_BASE_HEIGHT;
+        scaled.widthStrategy = 'clamp';
+        scaled.heightStrategy = 'clamp';
+        scaled.widthClamp = [0.7, 1.15];
+        scaled.heightClamp = [0.7, 1.15];
+        
+        return scaled;
+    };
+    const splitConfigsMediumScreen = splitConfigsDesktop.map((group) =>
+        Array.isArray(group) ? group.map(mapMediumScreenEntry) : group
+    );
+    
+    // Select appropriate config based on screen size
+    const selectSplitConfigs = () => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        if (w <= 960 && h <= 620) {
+            return splitConfigsLandscapeMobile;
+        } else if (w <= 1368) {
+            return splitConfigsMediumScreen;
+        }
+        return splitConfigsDesktop;
+    };
+    
+    const splitConfigs = selectSplitConfigs();
     const splitGalleries = Array.from(document.querySelectorAll('.split-gallery')).map((gallery, index) => {
         const container = gallery.querySelector('.split-image-container');
         const steps = Array.from(gallery.querySelectorAll('.split-step'));
@@ -918,16 +970,37 @@ document.addEventListener('DOMContentLoaded', () => {
     const BASE_VIEWPORT_WIDTH = 1920;
     const BASE_VIEWPORT_HEIGHT = 911;
 
-    const getViewportScaleFactor = () => {
+    // Get viewport scale factors for responsive positioning
+    // These factors are used to proportionally scale positions from design (1920x911) to current viewport
+    const getViewportScaleFactors = () => {
         const currentWidth = window.innerWidth || BASE_VIEWPORT_WIDTH;
         const currentHeight = window.innerHeight || BASE_VIEWPORT_HEIGHT;
-        const widthRatio = clamp(currentWidth / BASE_VIEWPORT_WIDTH, 0.55, 1);
-        const heightRatio = clamp(currentHeight / BASE_VIEWPORT_HEIGHT, 0.55, 1);
-        return Math.min(widthRatio, heightRatio);
+        
+        // Direct ratios - how much smaller/larger current viewport is vs design
+        const widthRatio = currentWidth / BASE_VIEWPORT_WIDTH;
+        const heightRatio = currentHeight / BASE_VIEWPORT_HEIGHT;
+        
+        // Combined factor for uniform scaling
+        const combinedFactor = Math.min(widthRatio, heightRatio);
+        
+        return {
+            // Raw ratios for direct proportional scaling
+            widthRatio,
+            heightRatio,
+            combinedFactor,
+            // Current viewport dimensions
+            currentWidth,
+            currentHeight,
+        };
+    };
+
+    // Legacy function for backward compatibility
+    const getViewportScaleFactor = () => {
+        const { combinedFactor } = getViewportScaleFactors();
+        return clamp(combinedFactor, 0.4, 1.2);
     };
 
     const applySplitTransform = (scrollY) => {
-        const viewportScaleFactor = getViewportScaleFactor();
         splitGalleries.forEach((entry, index) => {
             const { container, measurements, config } = entry;
             if (!container || !measurements) {
@@ -960,53 +1033,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const current = config[segmentIndex] || config[config.length - 1];
         const segment = offsets[Math.min(segmentIndex, offsets.length - 1)];
         let segmentProgress = 0;
-            const containerWidth =
-                container.clientWidth ||
-                container.getBoundingClientRect().width ||
-                BASE_SPLIT_WIDTH;
-            const containerHeight =
-                container.clientHeight ||
-                container.getBoundingClientRect().height ||
-                BASE_SPLIT_HEIGHT;
-
+        
+            // Use the config's reference dimensions for base calculations
+            // This ensures each config set scales from its own design reference
             const widthBase = current.widthBase || BASE_SPLIT_WIDTH;
             const heightBase = current.heightBase || BASE_SPLIT_HEIGHT;
-            const widthRatioRaw =
-                widthBase > 0 ? containerWidth / widthBase : 1;
-            const heightRatioRaw =
-                heightBase > 0 ? containerHeight / heightBase : 1;
-
-            const [minWidthClamp, maxWidthClamp] = Array.isArray(
-                current.widthClamp
-            )
-                ? current.widthClamp
-                : [0.7, 1.55];
-            const [minHeightClamp, maxHeightClamp] = Array.isArray(
-                current.heightClamp
-            )
-                ? current.heightClamp
-                : [0.7, 1.45];
-
-            const widthStrategy = current.widthStrategy || 'full';
-            const heightStrategy = current.heightStrategy || 'full';
-
-            const widthRatio =
-                widthStrategy === 'fixed'
-                    ? 1
-                    : clamp(
-                          widthRatioRaw,
-                          minWidthClamp ?? 0.7,
-                          maxWidthClamp ?? 1.55
-                      );
-
-            const heightRatio =
-                heightStrategy === 'fixed'
-                    ? 1
-                    : clamp(
-                          heightRatioRaw,
-                          minHeightClamp ?? 0.7,
-                          maxHeightClamp ?? 1.45
-                      );
+            
+            // Calculate ratios based on viewport vs CONFIG's design dimensions
+            // Desktop configs use 1920x911, medium configs use 1368x768, mobile use 844x390
+            const currentViewportWidth = window.innerWidth || widthBase;
+            const currentViewportHeight = window.innerHeight || heightBase;
+            const widthRatio = currentViewportWidth / widthBase;
+            const heightRatio = currentViewportHeight / heightBase;
 
         if (segment && segment.duration) {
             const relativeWithinSegment = clamp(
@@ -1020,7 +1058,26 @@ document.addEventListener('DOMContentLoaded', () => {
             segmentProgress = 1;
         }
 
+        // Calculate scale with viewport adjustment
+        // Scale should be adjusted proportionally on different screen sizes
         let scale = current.scale ?? 1;
+        const shouldApplyViewportScale =
+            typeof current.applyViewportScale === 'boolean'
+                ? current.applyViewportScale
+                : true;
+        
+        // Use config-relative combined factor for scale adjustment
+        const configCombinedFactor = Math.min(widthRatio, heightRatio);
+        
+        if (shouldApplyViewportScale && configCombinedFactor !== 1) {
+            // Apply proportional scale adjustment relative to config's base
+            // Formula: keeps ~90% of original at half-size, ~100% at design size
+            const scaleAdjustment = 0.8 + configCombinedFactor * 0.2;
+            scale *= scaleAdjustment;
+        }
+        
+        // Calculate translateX - ALWAYS scale proportionally by width ratio
+        // This ensures horizontal positioning maintains the same relative position
         let translateX;
         if (typeof current.translateXBase === 'number') {
             translateX = current.translateXBase * widthRatio;
@@ -1032,6 +1089,8 @@ document.addEventListener('DOMContentLoaded', () => {
             translateX = 0;
         }
 
+        // Calculate topOffset - ALWAYS scale proportionally by height ratio
+        // This ensures vertical positioning maintains the same relative position
         let topOffset;
         if (typeof current.topBase === 'number') {
             topOffset = current.topBase * heightRatio;
@@ -1043,6 +1102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             topOffset = 0;
         }
 
+        // Calculate bottomOffset - ALWAYS scale proportionally by height ratio
         let bottomOffset;
         if (typeof current.bottomBase === 'number') {
             bottomOffset = current.bottomBase * heightRatio;
@@ -1052,14 +1112,6 @@ document.addEventListener('DOMContentLoaded', () => {
             bottomOffset = current.bottom;
         } else {
             bottomOffset = null;
-        }
-        const shouldApplyViewportScale =
-            typeof current.applyViewportScale === 'boolean'
-                ? current.applyViewportScale
-                : true;
-        if (viewportScaleFactor < 0.999 && shouldApplyViewportScale) {
-            const blend = 0.6 + viewportScaleFactor * 0.4;
-            scale *= blend;
         }
         const durationMs = current.duration ?? 240; 
         const ease = current.ease ?? 'ease-out';
@@ -1431,10 +1483,52 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!ticking) {
             window.requestAnimationFrame(render);
             ticking = true;
-        }
+        } 
     };
 
+    // Track previous viewport dimensions for detecting significant changes
+    let prevViewportWidth = window.innerWidth || BASE_SPLIT_WIDTH;
+    let prevViewportHeight = window.innerHeight || BASE_SPLIT_HEIGHT;
+    let prevConfigMode = 'desktop'; // Track which config set is active
+    
+    const getConfigMode = (w, h) => {
+        if (w <= 960 && h <= 620) return 'mobile';
+        if (w <= 1368) return 'medium';
+        return 'desktop';
+    };
+    
     const handleResize = () => {
+        const currentWidth = window.innerWidth || BASE_SPLIT_WIDTH;
+        const currentHeight = window.innerHeight || BASE_SPLIT_HEIGHT;
+        const currentConfigMode = getConfigMode(currentWidth, currentHeight);
+        
+        // Check if viewport changed significantly or config mode changed
+        const widthChanged = Math.abs(currentWidth - prevViewportWidth) > 50;
+        const heightChanged = Math.abs(currentHeight - prevViewportHeight) > 50;
+        const modeChanged = currentConfigMode !== prevConfigMode;
+        
+        if (widthChanged || heightChanged || modeChanged) {
+            prevViewportWidth = currentWidth;
+            prevViewportHeight = currentHeight;
+            prevConfigMode = currentConfigMode;
+            
+            // Select appropriate config based on new viewport
+            let newConfigs;
+            if (currentConfigMode === 'mobile') {
+                newConfigs = splitConfigsLandscapeMobile;
+            } else if (currentConfigMode === 'medium') {
+                newConfigs = splitConfigsMediumScreen;
+            } else {
+                newConfigs = splitConfigsDesktop;
+            }
+            
+            // Re-normalize and apply new configs
+            splitGalleries.forEach((gallery, index) => {
+                const rawConfig = newConfigs[index] || newConfigs[newConfigs.length - 1];
+                gallery.config = rawConfig.map((cfg) => normalizeSplitEntry(cfg));
+            });
+        }
+        
         setViewportHeightCSSVar();
         updateScrollSpacingSettings();
         applyStepHeights();
