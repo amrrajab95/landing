@@ -2,11 +2,15 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" data-v="1.8.3" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" data-v="1.8.5" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>حماية البيئة في فلسطين</title>
-    <link rel="preload" as="image" href="assets/images/sec_1_1.png" />
+    <link rel="preload" as="image" href="assets/images/sec_1_1.png" fetchpriority="high" />
     <link rel="preload" as="image" href="assets/images/sec_1_2.png" />
     <link rel="preload" as="image" href="assets/images/sec_1_3.png" />
+    <!-- Preload next section images for smoother scrolling -->
+    <link rel="preload" as="image" href="assets/images/sec_2.png" />
+    <!-- Preload large sec_4 image early -->
+    <link rel="preload" as="image" href="assets/images/sec_4.png" />
     <script src="index.js" defer></script>
    <style>
         @font-face {  
@@ -872,9 +876,9 @@
     </div>
     <main class="scroll-gallery scroll-gallery--first">
         <div class="image-display" aria-live="polite" style="top:0">
-            <img src="assets/images/sec_1_1.png" alt="مشهد طبيعي من فلسطين مع مبادرة تنظيف" data-image="sec_1_1" loading="lazy" />
-            <img src="assets/images/sec_1_2.png" alt="مجموعة شبابية تزرع الأشجار في فلسطين" data-image="sec_1_2" loading="lazy" />
-            <img src="assets/images/sec_1_3.png" alt="طاقة شمسية تغذي قرية فلسطينية" data-image="sec_1_3" loading="lazy" />
+            <img src="assets/images/sec_1_1.png" alt="مشهد طبيعي من فلسطين مع مبادرة تنظيف" data-image="sec_1_1" fetchpriority="high" decoding="async" />
+            <img src="assets/images/sec_1_2.png" alt="مجموعة شبابية تزرع الأشجار في فلسطين" data-image="sec_1_2" decoding="async" />
+            <img src="assets/images/sec_1_3.png" alt="طاقة شمسية تغذي قرية فلسطينية" data-image="sec_1_3" decoding="async" />
         </div>
         <div class="scroll-spacer" aria-hidden="true"></div>
     </main> 
@@ -932,7 +936,7 @@
     </section>
     <section class="split-gallery sec-4">
         <div class="split-image-container">
-            <img src="assets/images/sec_4.png" alt="مشاريع بيئية مبتكرة في فلسطين" loading="lazy" class="split-pan-image sec_4" />
+            <img src="assets/images/sec_4.png" alt="مشاريع بيئية مبتكرة في فلسطين" decoding="async" class="split-pan-image sec_4" />
             <div class="split-caption-layer" aria-hidden="true">
                 <div class="split-caption" data-caption="2">
                     <b style="color: #FBB516;font-size: 20px;">الجريمة البيئية </b>
