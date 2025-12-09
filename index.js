@@ -277,12 +277,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 applyViewportScale: false,
                 applyHeightScale: false,
             },
-        ],
+        ], 
         [ 
-            { translateX: -350, scale: 1.5, top: 109, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
-            { translateX: 355, scale: 2.2, top: 260, bottom: null, captionIndex: 0, duration: 520, ease: 'linear' },
-            { translateX: -1544, scale: 2.4, top: 230, bottom: null, captionIndex: 1, duration: 520, ease: 'linear' },
-            { translateX: -840, scale: 0.95, top: 200, bottom: null, captionIndex: -1, duration: 520, ease: 'linear' },
+            { translateX: -350, scale: 1.6, top: 109, bottom: null, captionIndex: -1, duration: 520, ease: 'linear', topInverseScale: true },
+            { translateX: 355, scale: 2.2, top: 260, bottom: null, captionIndex: 0, duration: 520, ease: 'linear', topInverseScale: true },
+            { translateX: -1544, scale: 2.6, top: 185, bottom: null, captionIndex: 1, duration: 520, ease: 'linear', topBreakpoints: [
+                { width: 1920, top: 185 },
+                { width: 1880, top: 132 },
+                { width: 1810, top: 148 },
+                { width: 1740, top: 175 },
+                { width: 1620, top: 220 },
+                { width: 1420, top: 300 },
+            ] },
+            { translateX: -840, scale: 0.95, top: 200, bottom: null, captionIndex: -1, duration: 520, ease: 'linear', topInverseScale: true },
         ],
     ]; 
     const rawSplitConfigsLandscapeMobile = [
@@ -524,7 +531,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof scaled.translateX === 'number') {
             scaled.translateX = Math.round(scaled.translateX * widthScale);
         }
-        if (typeof scaled.top === 'number') {
+        // Don't pre-scale top if topInverseScale or topBreakpoints is set - let runtime handle it
+        if (typeof scaled.top === 'number' && !scaled.topInverseScale && !Array.isArray(scaled.topBreakpoints)) {
             scaled.top = Math.round(scaled.top * heightScale);
         }
         if (typeof scaled.bottom === 'number') {
@@ -1000,7 +1008,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return clamp(combinedFactor, 0.4, 1.2);
     };
 
-    const applySplitTransform = (scrollY) => {
+    const applySplitTransform = (scrollY) => { 
         splitGalleries.forEach((entry, index) => {
             const { container, measurements, config } = entry;
             if (!container || !measurements) {
@@ -1089,13 +1097,49 @@ document.addEventListener('DOMContentLoaded', () => {
             translateX = 0;
         }
 
-        // Calculate topOffset - ALWAYS scale proportionally by height ratio
-        // This ensures vertical positioning maintains the same relative position
+        // Calculate topOffset
+        // If topBreakpoints is provided, interpolate between defined values
+        // Otherwise use standard scaling or inverse scaling
         let topOffset;
-        if (typeof current.topBase === 'number') {
-            topOffset = current.topBase * heightRatio;
+        const useInverseTopScale = current.topInverseScale === true;
+        const topBreakpoints = current.topBreakpoints;
+        
+        if (Array.isArray(topBreakpoints) && topBreakpoints.length >= 2) {
+            // Use breakpoint interpolation for precise control
+            const sorted = [...topBreakpoints].sort((a, b) => b.width - a.width);
+            const viewportWidth = window.innerWidth || widthBase;
+            
+            // If width is larger than largest breakpoint
+            if (viewportWidth >= sorted[0].width) {
+                topOffset = sorted[0].top;
+            }
+            // If width is smaller than smallest breakpoint, extrapolate
+            else if (viewportWidth <= sorted[sorted.length - 1].width) {
+                const last = sorted[sorted.length - 1];
+                const secondLast = sorted[sorted.length - 2];
+                const slope = (last.top - secondLast.top) / (last.width - secondLast.width);
+                topOffset = last.top + slope * (viewportWidth - last.width);
+            }
+            // Interpolate between breakpoints
+            else {
+                for (let i = 0; i < sorted.length - 1; i++) {
+                    if (viewportWidth <= sorted[i].width && viewportWidth > sorted[i + 1].width) {
+                        const upper = sorted[i];
+                        const lower = sorted[i + 1];
+                        const t = (viewportWidth - lower.width) / (upper.width - lower.width);
+                        topOffset = lower.top + t * (upper.top - lower.top);
+                        break;
+                    }
+                }
+            }
+        } else if (typeof current.topBase === 'number') {
+            topOffset = useInverseTopScale 
+                ? current.topBase * (2 - heightRatio) 
+                : current.topBase * heightRatio;
         } else if (typeof current.top === 'number') {
-            topOffset = current.top * heightRatio;
+            topOffset = useInverseTopScale 
+                ? current.top * (2 - heightRatio) 
+                : current.top * heightRatio;
         } else if (typeof current.top === 'string') {
             topOffset = current.top;
         } else {
