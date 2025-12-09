@@ -565,12 +565,45 @@ document.addEventListener('DOMContentLoaded', () => {
         Array.isArray(group) ? group.map(mapMediumScreenEntry) : group
     );
     
+    // Tablet config for screens 825px - 1368px width
+    // Based on 1024x768 reference dimensions
+    const TABLET_BASE_WIDTH = 1024;
+    const TABLET_BASE_HEIGHT = 600;
+    const splitConfigsTablet = [
+        // Section 2 (sec_2)
+        [
+            { translateX: 210, scale: 1.3, top: 200, bottom: null, captionIndex: -1, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: 1100, scale: 3, top: 30, bottom: null, captionIndex: 0, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: 115, scale: 4, top: 280, bottom: null, captionIndex: 1, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: -700, scale: 2.8, top: 260, bottom: null, captionIndex: 2, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: 50, scale: 0.95, top: 300, bottom: null, captionIndex: -1, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+        ],
+        // Section 4 (sec-4)
+        [
+            { translateX: 80, scale: 1.05, top: 120, bottom: null, captionIndex: 1, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: 600, scale: 2.2, top: 200, bottom: null, captionIndex: -1, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: 250, scale: 4, top: 170, bottom: null, captionIndex: 0, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: -600, scale: 2.5, top: 300, bottom: null, captionIndex: 2, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: -2650, scale: 6.8, top: 5, bottom: null, captionIndex: 3, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: 40, scale: 1, top: 250, bottom: null, captionIndex: -1, duration: 600, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+        ],
+        // Section 6 (sec_6)
+        [
+            { translateX: 360, scale: 1.6, top: 140, bottom: null, captionIndex: -1, duration: 500, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: 1000, scale: 2.6, top: 200, bottom: null, captionIndex: 0, duration: 500, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: -450, scale: 2.9, top: 180, bottom: null, captionIndex: 1, duration: 500, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+            { translateX: 0, scale: 0.9, top: 300, bottom: null, captionIndex: -1, duration: 500, ease: 'ease-out', widthBase: TABLET_BASE_WIDTH, heightBase: TABLET_BASE_HEIGHT },
+        ],
+    ];
+    
     // Select appropriate config based on screen size
     const selectSplitConfigs = () => {
         const w = window.innerWidth;
         const h = window.innerHeight;
         if (w <= 960 && h <= 620) {
             return splitConfigsLandscapeMobile;
+        } else if (w >= 825 && w <= 1368) {
+            return splitConfigsTablet;
         } else if (w <= 1368) {
             return splitConfigsMediumScreen;
         }
@@ -1546,6 +1579,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const getConfigMode = (w, h) => {
         if (w <= 960 && h <= 620) return 'mobile';
+        if (w >= 825 && w <= 1368) return 'tablet';
         if (w <= 1368) return 'medium';
         return 'desktop';
     };
@@ -1569,6 +1603,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let newConfigs;
             if (currentConfigMode === 'mobile') {
                 newConfigs = splitConfigsLandscapeMobile;
+            } else if (currentConfigMode === 'tablet') {
+                newConfigs = splitConfigsTablet;
             } else if (currentConfigMode === 'medium') {
                 newConfigs = splitConfigsMediumScreen;
             } else {
