@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" data-v="1.8.2" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" data-v="1.8.3" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>حماية البيئة في فلسطين</title>
     <link rel="preload" as="image" href="assets/images/sec_1_1.png" />
     <link rel="preload" as="image" href="assets/images/sec_1_2.png" />
@@ -529,8 +529,34 @@
                 left: 70%;
                 right: initial!important;
             }
-          
-
+            
+            /* Simplified sec_2 caption positioning for mobile landscape */
+            .split-gallery.sec_2 .split-caption,
+            .split-gallery.sec_2 .split-caption.s-2-1,
+            .split-gallery.sec_2 .split-caption.s-2-2 {
+                left: initial !important;
+                right: 4% !important;
+                transform: none !important;
+                width: min(320px, 42vw);
+            }
+            
+            /* sec_6 captions - position at right edge on mobile */
+            .split-gallery.sec_6 .split-caption-layer {
+                padding: 0 !important;
+            }
+            .split-gallery.sec_6 .split-caption,
+            .split-gallery.sec_6 .split-caption.sec-6-1 {
+                right: 4% !important;
+                left: initial !important;
+                transform: none !important;
+                max-width: 45vw;
+            }
+            .split-gallery.sec_6 .split-caption.sec-6-2 {
+                right: 20% !important;
+                left: initial !important;
+                transform: none !important;
+                max-width: 45vw;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -628,34 +654,45 @@
                 width: min(90vw, 620px);
                 bottom: -80px;
                 padding: 20px 24px;
-                font-size: 18px;
+                font-size: 18px; 
             }
             .split-caption-layer {
                 padding: 0 32px 48px;
             }
-            .split-gallery.sec_2 .split-caption, 
+            /* sec_6 captions - remove layer padding, use pixel positioning */
+            .split-gallery.sec_6 .split-caption-layer {
+                padding: 0 !important;
+            }
+            .split-gallery.sec_6 .split-caption,
+            .split-gallery.sec_6 .split-caption.sec-6-1 {
+                right: 4% !important;
+                left: initial !important;
+            }
+            .split-gallery.sec_6 .split-caption.sec-6-2 {
+                right: 20% !important;
+                left: initial !important;
+            }
+            /* sec_2 captions - 4% from right */
+            .split-gallery.sec_2 .split-caption,
+            .split-gallery.sec_2 .split-caption.s-2-1,
+            .split-gallery.sec_2 .split-caption.s-2-2 {
+                left: initial;
+                right: 4%;
+                transform: none;
+                width: min(320px, 45vw);
+            }
+            .split-gallery.sec_2 .split-caption.s-2-1 {
+                width: min(400px, 50vw);
+            }
+            
+            /* sec_6 captions */
             .split-gallery.sec_6 .split-caption {
                 left: initial;
-                right: -14%;
-            }
-            .split-gallery.sec_2 .split-caption{
-                left: 53%;
-                transform: translateX(-50%);
-            }
-            .split-gallery.sec_2 .split-caption{
-                width: 270px;
-                left: 67%;
-            }
-            .split-gallery.sec_2 .split-caption.s-2-1{
-                width: 400px;
-                left: 67%;
+                right: 10%;
             }
             .split-gallery.sec_6 .split-caption img {
                 width: 100%;
                 height: auto;
-            }
-            .split-gallery.sec_2 .split-caption.s-2-2{
-                right: -8% !important;
             } 
         }
         
@@ -675,13 +712,16 @@
                 transform: translateX(-50%);
             }
             .split-gallery.sec_2 .split-caption,
-            .split-gallery.sec_2 .split-caption.s-2-1 {
-                width: min(350px, 45vw);
-                left: 55%;
+            .split-gallery.sec_2 .split-caption.s-2-1,
+            .split-gallery.sec_2 .split-caption.s-2-2 {
+                left: initial;
+                right: 4%;
+                transform: none;
+                width: min(320px, 45vw);
             }
             .split-gallery.sec_6 .split-caption {
                 max-width: 50%;
-                right: 8%;
+                right: 4%;
             }
         }
         @media (max-width: 1024px) {
@@ -702,7 +742,7 @@
                 
             }
             .split-gallery.sec_6 .split-caption.sec-6-2{
-                right: 0;
+                right: 20% !important;
                 max-width: 55%;
             }
             .image-display {
@@ -736,12 +776,13 @@
                 left: 50%;
                 transform: translateX(-50%);
             }
-            .split-gallery.sec_2 .split-caption {
-                right: 5%;
-                width: min(300px, 40vw);
-            }
-            .split-gallery.sec_2 .split-caption.s-2-1 {
-                width: min(350px, 45vw);
+            .split-gallery.sec_2 .split-caption,
+            .split-gallery.sec_2 .split-caption.s-2-1,
+            .split-gallery.sec_2 .split-caption.s-2-2 {
+                left: initial;
+                right: 4%;
+                transform: none;
+                width: min(300px, 42vw);
             }
         }
         
@@ -775,6 +816,13 @@
             }
             .split-caption-layer {
                 padding: 0 18px 32px;
+            }
+            .split-gallery.sec_6 .split-caption-layer {
+                padding: 0 !important;
+            }
+            .split-gallery.sec_6 .split-caption {
+                right: 4% !important;
+                left: initial !important;
             }
             .split-gallery {
                 background-attachment: scroll;
