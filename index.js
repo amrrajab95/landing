@@ -21,10 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
         useCompactSpacing = isCoarsePointer || narrowViewport;
 
         if (useCompactSpacing) {
-            transitionDistance = 130;
-            pairedTransitionDistance = 200;
-            nonCaptionBaseFactor = 0.24;
-            nonCaptionMinHeight = 180;
+            // Mobile: shorter distances = less scroll needed to switch
+            transitionDistance = 100;
+            pairedTransitionDistance = 150;
+            nonCaptionBaseFactor = 0.2;
+            nonCaptionMinHeight = 140;
         } else {
             transitionDistance = 220;
             pairedTransitionDistance = 280;
@@ -294,17 +295,17 @@ document.addEventListener('DOMContentLoaded', () => {
     ]; 
     const rawSplitConfigsLandscapeMobile = [
         [
-            { translateX: 130, scale: 1.25, top: 130, bottom: null, captionIndex: -1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false },
-            { translateX: 935, scale: 3.15, top: -27, bottom: null, captionIndex: 0, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
-            { translateX: 120, scale: 3, top: 140, bottom: null, captionIndex: 1, duration: 720, ease: 'linear', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 130, scale: 1.25, top: 130, bottom: null, captionIndex: -1, duration: 150, ease: 'ease-out', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false },
+            { translateX: 935, scale: 3.15, top: -27, bottom: null, captionIndex: 0, duration: 150, ease: 'ease-out', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
+            { translateX: 120, scale: 3, top: 140, bottom: null, captionIndex: 1, duration: 150, ease: 'ease-out', captionOffsetFactor: -0.132, applyWidthScale: false, applyViewportScale: false, applyHeightScale: false },
             {
                 translateX: -620,
                 scale: 3,
                 top: 160,
                 bottom: null,
                 captionIndex: 2,
-                duration: 760,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 captionOffsetFactor: 0,
                 captionSpeedFactor: 1,
                 captionHoldAtTop: 0,
@@ -320,8 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 110,
                 bottom: null,
                 captionIndex: -1,
-                duration: 680,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 applyWidthScale: false,
                 applyViewportScale: false, 
                 applyHeightScale: false,
@@ -334,8 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 45,
                 bottom: null,
                 captionIndex: -1,
-                duration: 460,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 captionOffsetFactor: -0.121,
                 captionHoldAtTop: 0,
                 applyWidthScale: false,
@@ -350,8 +351,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 160,
                 bottom: null,
                 captionIndex: 0,
-                duration: 460,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 captionOffsetFactor: -0.121,
                 captionHoldAtTop: 0,
                 applyWidthScale: false,
@@ -365,8 +366,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 80,
                 bottom: null,
                 captionIndex: 1,
-                duration: 820,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 captionHoldAtTop: 0,
                 applyWidthScale: false,
                 applyViewportScale: false,
@@ -379,8 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 130,
                 bottom: null,
                 captionIndex: 2,
-                duration: 820,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 captionOffsetFactor: 0,
                 captionSpeedFactor: 1,
                 captionHoldAtTop: 0,
@@ -397,8 +398,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: -38,
                 bottom: null,
                 captionIndex: 3,
-                duration: 820,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 captionOffsetFactor: 0,
                 captionSpeedFactor: 1,
                 captionHoldAtTop: 0,
@@ -415,8 +416,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 30,
                 bottom: null,
                 captionIndex: -1,
-                duration: 820,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 captionHoldAtTop: 0,
                 extraScroll: 120,
                 minScroll: 360,
@@ -432,8 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 50,
                 bottom: null,
                 captionIndex: -1,
-                duration: 520,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
@@ -444,8 +445,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 100,
                 bottom: null,
                 captionIndex: 0,
-                duration: 520,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
@@ -456,8 +457,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 55,
                 bottom: null,
                 captionIndex: 1,
-                duration: 520,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
@@ -468,8 +469,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 top: 60,
                 bottom: null,
                 captionIndex: -1,
-                duration: 520,
-                ease: 'linear',
+                duration: 150,
+                ease: 'ease-out',
                 applyWidthScale: false,
                 applyViewportScale: false,
                 applyHeightScale: false,
