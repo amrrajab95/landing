@@ -1,4 +1,13 @@
+// Disable browser's automatic scroll restoration - always start from top on refresh
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Ensure page starts at top
+    window.scrollTo(0, 0);
+    
     // Design reference dimensions - all splitConfig values are based on these
     const BASE_SPLIT_WIDTH = 1920;
     const BASE_SPLIT_HEIGHT = 911; 
