@@ -1595,8 +1595,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', handleResize);
+    
+    // Track orientation to detect landscape -> portrait switch
+    let wasLandscape = window.innerWidth > window.innerHeight;
+    
     window.addEventListener('orientationchange', () => {
         window.setTimeout(() => {
+            const isNowPortrait = window.innerWidth < window.innerHeight;
+            
+            // If user switched from landscape to portrait, reload page from top
+            if (wasLandscape && isNowPortrait) {
+                window.scrollTo(0, 0);
+                window.location.reload();
+                return;
+            }
+            
+            // Update tracking
+            wasLandscape = !isNowPortrait;
+            
             setViewportHeightCSSVar();
             handleResize();
             updateOrientationState();
